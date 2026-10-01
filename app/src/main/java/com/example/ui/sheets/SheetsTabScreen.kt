@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.components.CyberCopyButton
+import com.example.ui.components.CyberMessage
 import com.example.ui.components.CyberTextField
 import com.example.ui.theme.LocalCyberPalette
 import com.example.ui.theme.TerminalFontFamily
@@ -78,6 +79,11 @@ fun SheetsTabScreen(
       .testTag("sheets_tab"),
     verticalArrangement = Arrangement.spacedBy(10.dp)
   ) {
+    CyberMessage(
+      message = stringResource(R.string.sheets_reference_note),
+      isError = false
+    )
+
     CyberTextField(
       value = search,
       onValueChange = onSearchChange,

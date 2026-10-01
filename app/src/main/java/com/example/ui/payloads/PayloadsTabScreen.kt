@@ -210,6 +210,13 @@ fun PayloadsTabScreen(
           fontWeight = FontWeight.Medium
         )
       }
+      Spacer(Modifier.height(8.dp))
+      Text(
+        text = stringResource(R.string.payload_no_exec_note),
+        color = palette.mutedForeground,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Medium
+      )
     }
   }
 }

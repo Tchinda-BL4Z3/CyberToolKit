@@ -84,6 +84,7 @@ import com.example.R
 import com.example.data.CyberSettings
 import com.example.security.CyberSecurityManager
 import com.example.security.LockoutGuard
+import com.example.ui.components.CyberBadge
 import com.example.ui.components.CyberMessage
 import com.example.ui.components.CyberSegmentedControl
 import com.example.ui.components.CyberSectionLabel
@@ -654,15 +655,11 @@ fun SettingsTabScreen(
           .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
-        SettingSwitchRow(
+        SettingStatusRow(
           icon = Icons.Default.WifiOff,
           title = stringResource(R.string.settings_offline_title),
           body = stringResource(R.string.settings_offline_body),
-          // Not user-toggleable: the app declares no INTERNET permission at
-          // all, so this reports a compile-time fact rather than a preference.
-          checked = true,
-          enabled = false,
-          onCheckedChange = {}
+          badge = stringResource(R.string.settings_offline_enforced)
         )
 
         Text(
@@ -1192,6 +1189,65 @@ private fun DigitCellsPreview(digits: String, showPlain: Boolean) {
         )
       }
     }
+  }
+}
+
+/**
+ * A setting the operator cannot change, presented as an enforced fact rather
+ * than as a switch.
+ *
+ * This exists because [SettingSwitchRow] renders a disabled row in the muted
+ * colour, which reads as "off" or "unavailable". For a property that is always
+ * on and cannot be turned off - here, the app declaring no INTERNET permission -
+ * that is the wrong signal: the strongest guarantee in the app looked like a dead
+ * control. There is no `Switch` at all here, so there is nothing to tempt the
+ * operator into tapping, and the tint stays at full strength to mark the
+ * guarantee as live.
+ */
+@Composable
+private fun SettingStatusRow(
+  icon: ImageVector,
+  title: String,
+  body: String,
+  badge: String
+) {
+  val palette = LocalCyberPalette.current
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .heightIn(min = 48.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.weight(1f)
+    ) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = palette.primary,
+        modifier = Modifier.size(20.dp)
+      )
+      Spacer(Modifier.width(10.dp))
+      Column {
+        Text(
+          text = title,
+          color = palette.foreground,
+          fontSize = 14.5.sp,
+          fontWeight = FontWeight.Bold
+        )
+        if (body.isNotEmpty()) {
+          Text(
+            text = body,
+            color = palette.mutedForeground,
+            fontSize = 12.sp
+          )
+        }
+      }
+    }
+    Spacer(Modifier.width(8.dp))
+    CyberBadge(label = badge, tint = palette.primary)
   }
 }
 

@@ -116,6 +116,7 @@
 
     <!-- ============ Onglet 3 : Cheat Sheets ============ -->
     <string name="sheets_search_placeholder">Rechercher une commande…</string>
+    <string name="sheets_reference_note">Aide-mémoire à copier : les commandes sont fournies pour être relues et exécutées sur vos propres équipements, jamais depuis cette application.</string>
     <string name="sheets_no_results">Aucune commande correspondante.</string>
     <string name="sheets_filter_all">Toutes</string>
 
@@ -127,6 +128,7 @@
     <string name="payload_generated_label">Payload généré</string>
     <string name="payload_ready">PRÊT</string>
     <string name="payload_disclaimer">Réservé aux tests de sécurité autorisés et aux environnements de laboratoire.</string>
+    <string name="payload_no_exec_note">Texte à copier uniquement : l\'application n\'exécute aucune commande et n\'ouvre aucune session réseau.</string>
     <string name="payload_host_error_empty">Renseignez une adresse IP ou un nom d\'hôte.</string>
     <string name="payload_host_error_invalid">Adresse invalide (IPv4 ou nom d\'hôte attendu).</string>
     <string name="payload_port_error_empty">Renseignez un port.</string>
@@ -195,6 +197,7 @@
     <string name="settings_offline_title">Mode hors-ligne complet</string>
     <!-- "trafic" is correct French; the Typos check is English-only. -->
     <string name="settings_offline_body" tools:ignore="Typos">Aucune permission réseau déclarée, trafic en clair refusé</string>
+    <string name="settings_offline_enforced">GARANTI</string>
     <string name="settings_wipe_body">Efface les entrées de l\'encodeur, du module crypto, l\'historique de session et les copies encore présentes dans le presse-papiers. Le code de verrouillage est conservé.</string>
     <string name="settings_wipe_action">RÉINITIALISER LES DONNÉES DE SESSION</string>
     <string name="settings_wipe_done">Données de session effacées</string>

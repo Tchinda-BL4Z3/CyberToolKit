@@ -116,6 +116,7 @@
 
     <!-- ============ Tab 3: Cheat sheets ============ -->
     <string name="sheets_search_placeholder">Search commands…</string>
+    <string name="sheets_reference_note">Copy-only cheat sheet: commands are meant to be reviewed and run on your own equipment, never from this app.</string>
     <string name="sheets_no_results">No matching commands found.</string>
     <string name="sheets_filter_all">All</string>
 
@@ -127,6 +128,7 @@
     <string name="payload_generated_label">Generated payload</string>
     <string name="payload_ready">READY</string>
     <string name="payload_disclaimer">For authorized security testing and lab environments only.</string>
+    <string name="payload_no_exec_note">Copy-only text: the app runs no command and opens no network session.</string>
     <string name="payload_host_error_empty">Enter an IP address or a hostname.</string>
     <string name="payload_host_error_invalid">Invalid address (IPv4 or hostname expected).</string>
     <string name="payload_port_error_empty">Enter a port.</string>
@@ -194,6 +196,7 @@
     <string name="settings_section_privacy">Data &amp; Privacy</string>
     <string name="settings_offline_title">Fully offline mode</string>
     <string name="settings_offline_body" tools:ignore="Typos">No network permission declared, cleartext traffic refused</string>
+    <string name="settings_offline_enforced">ENFORCED</string>
     <string name="settings_wipe_body">Clears the encoder and crypto inputs, the session history and any copies still sitting in the clipboard. The lock code is kept.</string>
     <string name="settings_wipe_action">RESET SESSION DATA</string>
     <string name="settings_wipe_done">Session data cleared</string>
