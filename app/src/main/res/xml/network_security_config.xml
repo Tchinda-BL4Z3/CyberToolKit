@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CyberToolkit never talks to the network. This config makes that guarantee
+  explicit and machine-checkable rather than a UI claim:
+
+  - cleartext traffic is denied everywhere (belt-and-braces with usesCleartextTraffic)
+  - the system CA store is trusted, but since no INTERNET permission is declared
+    in the manifest, no socket can be opened regardless of these settings.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pre-Android-12 backup rules (API 23-30).
+
+  CyberToolkit stores a PBKDF2-hashed lock code, anti-bruteforce counters and the
+  operator's lab defaults. None of it may leave the device through cloud backup or
+  an adb backup, so the whole app data store is excluded.
+  See https://developer.android.com/guide/topics/data/autobackup
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="external" path="." />
+    <exclude domain="root" path="." />
+</full-backup-content>
