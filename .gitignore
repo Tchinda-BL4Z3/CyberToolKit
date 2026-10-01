@@ -21,3 +21,9 @@ debug.keystore
 *.jks
 *.keystore
 keystore.properties
+
+# Build outputs are not source. An APK in history is a blob Git stores in full at
+# every commit, and an APK signed with a throwaway key is not distributable: the
+# identity cannot be rotated afterwards. Build and distribute it separately.
+*.apk
+*.aab
