@@ -28,15 +28,61 @@ commande exacte et la raison de la faire.
 | Tests instrumentés | 6, 0 échec | émulateur `Pixel_5` |
 | Lint | 0 avertissement | `lintDebug` |
 | Bundle AAB | 3,1 Mo, signé | `bundleRelease` exécuté |
-| Permissions réseau | **aucune** | `aapt2 dump badging` |
+| Permissions réseau | `INTERNET` (client SSH opt-in) | `aapt2 dump badging` |
 
 Le fait que `bundleRelease` produise un AAB signé de 3,1 Mo a été vérifié
 localement avec une clé de travail. Le keystore de production n'a pas servi à
 cette vérification, pour ne pas l'exposer inutilement.
 
-### La seule permission présente, et pourquoi ce n'est pas un problème
+## Permissions : ce qui a changé, et la déclaration à faire
 
-`aapt2 dump badging` ne liste qu'une permission :
+L'app **déclare maintenant `INTERNET`**. C'est un changement volontaire, pour la
+fonction B (client SSH). Il faut être précis sur ce que cela implique, parce que
+la section ci-dessous affirmait le contraire avant.
+
+### Pourquoi `INTERNET` ne rend pas l'app illégale
+
+Ajouter `INTERNET` est normal et autorisé. Des milliers d'applications publiées
+le font, dont des clients SSH (JuiceSSH, Termius). Ce qui compte pour Play n'est
+pas la permission, mais trois choses :
+
+1. **Ne rien faire de malveillant.** On ne se connecte qu'à une machine dont
+   l'opérateur possède les identifiants. Aucun balayage d'un tiers, aucune
+   exfiltration, aucune collecte dissimulée.
+2. **Déclarer honnêtement** dans le formulaire Data Safety.
+3. **Respecter le contrôle parental** et la politique sur le ciblage. Une app
+   réseau doit être déclarée, ce qui est fait.
+
+### Ce que l'app fait réellement du réseau
+
+- Les modules **hors-ligne** (encodeur, crypto, verrouillage, labo simulé) n'ouvrent
+  aucun socket. Ils n'ont pas de code réseau.
+- Le **client SSH** est le seul chemin réseau. Il est **désactivé par défaut** et
+  refuse de s'exécuter tant que l'utilisateur ne l'a pas activé dans Paramètres.
+  Ce refus est appliqué dans le code (`SshSession.consentGiven`), pas seulement
+  dans l'interface : un appelant qui oublierait de vérifier l'option serait quand
+  même bloqué.
+- Les identifiants (clé privée, passphrase) vivent en mémoire d'interface
+  seulement. **Aucun fichier, aucune preference, aucun log.**
+- `cleartextTrafficPermitted="false"` partout : pas de HTTP en clair, pas de
+  descente de niveau possible. Un serveur SSH est déjà chiffré, il n'a besoin de
+  rien.
+
+### Réponses à donner dans Play Console > Data Safety
+
+| Question | Réponse |
+|---|---|
+| L'app collecte-t-elle des données ? | **Non** |
+| Les données sont-elles chiffrées en transit ? | **Oui** (SSH) |
+| L'app peut être utilisée sans réseau ? | **Oui**, sauf la fonction SSH |
+| Partage avec des tiers ? | **Non** |
+
+Déclarer « aucune collecte » est exact : l'app n'envoie rien vers un service
+tiers. La commande part vers *votre* hôte, qui est votre machine.
+
+### La permission automatique d'AndroidX
+
+`aapt2 dump badging` liste aussi :
 
 ```
 uses-permission: com.example.cybertoolkit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
@@ -47,8 +93,9 @@ pour empêcher la réception de diffusions par d'autres applications. Le code ne
 la demande pas, et Play Console l'affichera sans que vous puissiez la retirer.
 Ce n'est pas une fuite de données : c'est une restriction, l'inverse d'un risque.
 
-Aucune permission `INTERNET`, `ACCESS_NETWORK_STATE` ni `CAMERA`. L'application
-est réellement incapable de transmettre quoi que ce soit.
+Aucune permission `ACCESS_NETWORK_STATE`, `CAMERA`, `RECORD_AUDIO` ni
+`ACCESS_FINE_LOCATION`. Le client SSH n'en a besoin d'aucune : `INTERNET` seule
+suffit à ouvrir une socket.
 
 ---
 
@@ -210,14 +257,16 @@ rejeter. Pour cette application, la réponse est simple et vérifiable :
 
 | Question | Réponse | Justification vérifiable |
 | --- | --- | --- |
-| L'app collecte-t-elle des données ? | **Non** | Aucune permission `INTERNET`, vérifié par `aapt2 dump badging` |
+| L'app collecte-t-elle des données ? | **Non** | Aucun envoi vers un tiers ; réseau limité au client SSH opt-in |
 | Données partagées ? | Non | Aucune destination réseau |
 | Données collectées ? | Non | Tout reste dans `SharedPreferences`, local |
 | Chiffrement au repos ? | S/O | Rien ne quitte l'appareil |
 | Suppression possible ? | S/O | Rien à supprimer côté serveur |
 
 Cette application est **plus facile à documenter qu'une app moyenne**, précisément
-parce qu'elle n'a aucune permission réseau. C'est un vrai argument de vente, pas
+parce que seul le client SSH utilise le réseau, sur activation explicite, et
+qu'aucun module ne peut envoyer de données à un tiers. C'est un vrai argument de
+vente, pas
 seulement une formalité.
 
 ### 4.4 Politique de confidentialité
@@ -226,7 +275,7 @@ Play exige une URL de politique de confidentialité **hébergée publiquement**
 (comme un lien GitHub Pages), pas un PDF joint.
 
 Pour cette application, une page d'une page suffit, parce que le contenu est
-limité à : cette application ne collecte aucune donnée et n'a aucune permission
+limité à : cette application ne collecte aucune donnée et n'envoie rien à un
 réseau, les données restent sur votre appareil, le code de verrouillage n'est
 jamais stocké en clair mais uniquement sous forme de dérivation
 PBKDF2-HMAC-SHA256 avec un sel aléatoire de 128 bits
@@ -287,7 +336,7 @@ vérifié dans le projet, ce qui réduit le risque.
 | 3 | 142 tests JVM verts | fait |
 | 4 | 6 tests instrumentés verts sur appareil | fait sur émulateur |
 | 5 | Lint à 0 avertissement | fait |
-| 6 | Aucune permission réseau | fait, vérifié |
+| 6 | Réseau limité au client SSH opt-in | fait, `INTERNET` déclarée, gate dans le code |
 | 7 | Testé sur un **téléphone réel** | **à faire** |
 | 8 | Ancien `com.aistudio.cybertoolkit.encdx` désinstallé | à faire sur chaque appareil |
 | 9 | Code d'usine `11111` changé, verrou testé | à faire sur appareil réel |

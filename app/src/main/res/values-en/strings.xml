@@ -81,6 +81,8 @@
     <string name="encoder_error_no_hex">Input contains no valid hex digit.</string>
     <string name="encoder_error_base64">Invalid Base64 input.</string>
     <string name="encoder_error_url">Invalid URL escape sequence.</string>
+<string name="encoder_error_non_ascii">Character outside 7-bit ASCII (0-127). The ASCII format rejects extended characters.</string>
+<string name="encoder_error_ascii_code">Invalid ASCII code: every value must be a number between 0 and 127.</string>
 
     <!-- ============ Tab 2: Crypto ============ -->
     <string name="crypto_input_label">Text to hash</string>
@@ -117,6 +119,10 @@
     <!-- ============ Tab 3: Cheat sheets ============ -->
     <string name="sheets_search_placeholder">Search commands…</string>
     <string name="sheets_reference_note">Copy-only cheat sheet: commands are meant to be reviewed and run on your own equipment, never from this app.</string>
+<string name="sheets_shell_label">LOCAL LAB (SANDBOX)</string>
+<string name="sheets_shell_disclaimer">Built-in interpreter: commands are simulated against a virtual filesystem. No process is spawned and no network is used.</string>
+<string name="sheets_shell_welcome">$ help    for the list of built-in commands</string>
+<string name="sheets_shell_placeholder">Type a command, then Enter</string>
     <string name="sheets_no_results">No matching commands found.</string>
     <string name="sheets_filter_all">All</string>
 
@@ -217,4 +223,41 @@
 
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_seconds">%1$d s</string>
+    <string name="payload_purpose_title">WHAT THIS IS ACTUALLY FOR</string>
+    <string name="payload_purpose_body">A payload is just a pre-filled line of text. The app does not run it: it writes it for you. You copy it into Ncat or a terminal, on YOUR lab machine, once you have reached it through a vulnerability you found.</string>
+    <string name="payload_current_label">THE ONE YOU JUST GENERATED</string>
+    <string name="payload_explain_bash">Bash redirection: Bash opens an outbound TCP connection to your host and port. Try this first, but the target must have Bash (rare on Windows).</string>
+    <string name="payload_explain_powershell">The Windows equivalent. Useful when the target is a Windows server, where Bash does not exist.</string>
+    <string name="payload_explain_python">The most reliable option: it starts an interactive pseudo-terminal. Works wherever Python 2 is installed. Longer because it installs the terminal itself.</string>
+    <string name="payload_explain_netcat">The classic. Works wherever netcat exists, BUT the -e flag was removed from recent versions: this variant often fails.</string>
+    <string name="payload_explain_ping">Not a session: it only checks whether the machine answers. Useful as a first step, to find out if the IP is alive.</string>
+    <string name="payload_order_hint">Order to try: Bash, then Python, then Netcat. Which one works depends on what is installed on the target.</string>
+    <string name="settings_ssh_title">SSH client (network)</string>
+    <string name="settings_ssh_body_off">DISABLED. No outgoing connection. Turn on to run one command on a lab machine you hold credentials for.</string>
+    <string name="settings_ssh_body_on">ENABLED. The app may connect to your lab machine. Credentials are never written to disk.</string>
+    <string name="settings_ssh_on_badge">NETWORK ENABLED</string>
+    <string name="settings_offline_body_ssh_on">Offline modules: no connection. Only the SSH command below uses the network.</string>
+    <string name="ssh_optin_blocked">Enable the SSH client in Settings &gt; Data and privacy.</string>
+    <string name="ssh_connect">RUN</string>
+    <string name="ssh_title">Remote execution (SSH)</string>
+    <string name="ssh_host_label">HOST</string>
+    <string name="ssh_port_label">PORT</string>
+    <string name="ssh_user_label">USERNAME</string>
+    <string name="ssh_key_label">PRIVATE KEY (PEM)</string>
+    <string name="ssh_passphrase_label">PASSPHRASE (optional)</string>
+    <string name="ssh_command_label">COMMAND</string>
+    <string name="ssh_command_hint">One command only. No PTY, no interactive shell.</string>
+    <string name="ssh_output">OUTPUT</string>
+    <string name="ssh_idle">No command run yet.</string>
+    <string name="ssh_running">Connecting…</string>
+    <string name="ssh_legal_note">Connect only to a machine you own or are authorised for. Nothing is sent to a third party: the command goes to your host, nothing else.</string>
+    <string name="sheets_shell_open_subtitle">Simulated terminal: local commands and an invented network. No real connection.</string>
+    <string name="ssh_open_subtitle_on">ENABLED — run one command on your lab machine</string>
+    <string name="ssh_open_subtitle_off">DISABLED — turn on in Settings &gt; Data and privacy</string>
+    <string name="lab_what_title">WHAT THIS IS</string>
+    <string name="lab_what_body">A mini-terminal that runs entirely inside the app. Type a command at the bottom, press Enter, the result appears above.</string>
+    <string name="lab_safety_title">WHAT THIS IS NOT</string>
+    <string name="lab_safety_body">This is not a Linux terminal. No program is launched, no file on the phone is read, no network is used. The network commands (nmap, ping, tcpdump) invent their answers: they are here to teach the shape of a result, not to scan a real machine. For a real machine, use the SSH client below.</string>
+    <string name="lab_try_title">TRY IT</string>
+    <string name="lab_try_body">Type "help" then Enter for the full list. The buttons below do the same thing as typing by hand.</string>
 </resources>

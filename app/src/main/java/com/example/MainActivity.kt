@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SettingsEthernet
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
@@ -83,8 +84,11 @@ import com.example.ui.crypto.CryptoTabScreen
 import com.example.ui.encoder.EncoderTabScreen
 import com.example.ui.lock.HomeScreenLock
 import com.example.ui.payloads.PayloadsTabScreen
+import com.example.ui.sheets.LabShellScreen
 import com.example.ui.sheets.SheetsTabScreen
+import com.example.ui.sheets.SubScreen
 import com.example.ui.settings.SettingsTabScreen
+import com.example.ui.ssh.SshScreen
 import com.example.ui.theme.CyberToolkitTheme
 import com.example.ui.theme.LocalCyberPalette
 import com.example.ui.theme.TerminalFontFamily
@@ -239,10 +243,19 @@ private fun CyberToolkitContent(
     activity?.applyScreenCapturePolicy(settings.blockScreenCapture)
   }
 
+  // Back on a sub-screen pops it. Declared first so it wins over the tab handler
+  // below: both are enabled at the same time when the operator is on the Cheat
+  // Sheet tab with the shell open, and popping the shell is what the gesture means
+  // there. Without this, the system back button exited the app from the shell.
+  val subScreen by viewModel.subScreen.collectAsStateWithLifecycle()
+  BackHandler(enabled = viewModel.isUnlocked && subScreen != null) {
+    viewModel.closeSubScreen()
+  }
+
   // Back from a non-first tab returns to the console home tab; from the first
   // tab it falls through to the system gesture, which is the expected behaviour
   // and was previously "nothing happens".
-  BackHandler(enabled = viewModel.isUnlocked && selectedTab != 0) {
+  BackHandler(enabled = viewModel.isUnlocked && subScreen == null && selectedTab != 0) {
     viewModel.selectTab(0)
   }
 
@@ -283,7 +296,11 @@ private fun ConsoleScaffold(
   selectedTab: Int
 ) {
   val palette = LocalCyberPalette.current
+  val subScreen by viewModel.subScreen.collectAsStateWithLifecycle()
 
+  // Sub-screens (lab shell, SSH) replace the tab content and hide the tab bar:
+  // on a 384dp-wide screen the bottom bar costs 80dp of vertical space that a
+  // terminal needs far more than a five-item navigation strip.
   Scaffold(
     containerColor = palette.bg,
     topBar = {
@@ -336,6 +353,41 @@ private fun ConsoleScaffold(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+              // Lab tools live here, in the app bar, not in the tab body.
+              //
+              // The Cheat Sheet Column does not scroll and its list is the only
+              // `weight(1f)`, so anything rendered below the list is measured
+              // first and takes the space the commands need. An app bar icon
+              // costs zero vertical space in the tab.
+              if (selectedTab == 2 && subScreen == null) {
+                IconButton(
+                  onClick = viewModel::openLab,
+                  modifier = Modifier
+                    .size(48.dp)
+                    .testTag("open_lab_button")
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.Terminal,
+                    contentDescription = stringResource(R.string.sheets_shell_label),
+                    tint = palette.mutedForeground,
+                    modifier = Modifier.size(20.dp)
+                  )
+                }
+                IconButton(
+                  onClick = viewModel::openSsh,
+                  modifier = Modifier
+                    .size(48.dp)
+                    .testTag("open_ssh_button")
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.SettingsEthernet,
+                    contentDescription = stringResource(R.string.ssh_title),
+                    tint = if (settings.sshEnabled) palette.primary else palette.mutedForeground,
+                    modifier = Modifier.size(20.dp)
+                  )
+                }
+              }
+
               IconButton(
                 onClick = { viewModel.lock() },
                 modifier = Modifier.size(48.dp)
@@ -355,6 +407,7 @@ private fun ConsoleScaffold(
       )
     },
     bottomBar = {
+      if (subScreen != null) return@Scaffold
       NavigationBar(
         containerColor = palette.surface,
         modifier = Modifier.border(0.5.dp, palette.border)
@@ -423,12 +476,21 @@ private fun ConsoleScaffold(
           onPasswordHashChange = { viewModel.passwordHashResult = it }
         )
 
-        2 -> SheetsTabScreen(
-          search = viewModel.cheatSearch,
-          onSearchChange = { viewModel.cheatSearch = it },
-          category = viewModel.cheatCategory,
-          onCategoryChange = { viewModel.cheatCategory = it }
-        )
+        2 -> when (subScreen) {
+          SubScreen.LAB -> LabShellScreen(onBack = viewModel::closeSubScreen)
+          SubScreen.SSH -> SshScreen(
+            sshEnabled = settings.sshEnabled,
+            defaultHost = settings.defaultHost,
+            defaultPort = settings.defaultPort,
+            onBack = viewModel::closeSubScreen
+          )
+          null -> SheetsTabScreen(
+            search = viewModel.cheatSearch,
+            onSearchChange = { viewModel.cheatSearch = it },
+            category = viewModel.cheatCategory,
+            onCategoryChange = { viewModel.cheatCategory = it }
+          )
+        }
 
         3 -> PayloadsTabScreen(
           host = settings.defaultHost,

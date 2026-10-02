@@ -1,5 +1,7 @@
 package com.example.ui
 
+import com.example.ui.sheets.SubScreen
+
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -137,6 +139,28 @@ class CyberToolkitViewModel(
 
   var cheatSearch by mutableStateOf("")
   var cheatCategory by mutableStateOf(ALL_CATEGORY)
+
+  /**
+   * Sub-screen pushed on top of the Cheat Sheet tab, or null when none is open.
+   *
+   * A `StateFlow`, not a plain `mutableStateOf`, because [com.example.MainActivity]
+   * reads it through `collectAsStateWithLifecycle` alongside the other tab state,
+   * and because the system back gesture has to be able to pop it.
+   */
+  private val _subScreen = MutableStateFlow<SubScreen?>(null)
+  val subScreen: StateFlow<SubScreen?> = _subScreen.asStateFlow()
+
+  fun openLab() {
+    _subScreen.value = SubScreen.LAB
+  }
+
+  fun openSsh() {
+    _subScreen.value = SubScreen.SSH
+  }
+
+  fun closeSubScreen() {
+    _subScreen.value = null
+  }
 
   // ---------------------------------------------------------------------------
   // Tab 4 - Payloads

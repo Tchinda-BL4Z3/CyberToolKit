@@ -5,11 +5,12 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-/** The three wire formats handled by the Encoder tab. */
+/** The four wire formats handled by the Encoder tab. */
 enum class CodecFormat(val label: String) {
   BASE64("Base64"),
   HEX("Hex"),
-  URL("URL");
+  URL("URL"),
+  ASCII("ASCII");
 
   companion object {
     fun fromLabel(label: String): CodecFormat =
@@ -33,7 +34,9 @@ enum class CodecError {
   ODD_HEX_LENGTH,
   NO_HEX_DIGIT,
   INVALID_BASE64,
-  INVALID_URL_ESCAPE
+  INVALID_URL_ESCAPE,
+  NON_ASCII_INPUT,
+  INVALID_ASCII_CODE
 }
 
 sealed interface CodecResult {
@@ -45,7 +48,8 @@ sealed interface CodecResult {
 }
 
 /**
- * Pure text codecs: Base64, Hex and URL percent-encoding, in both directions.
+ * Pure text codecs: Base64, Hex, URL percent-encoding and decimal ASCII, in both
+ * directions.
  *
  * Every failure mode is reported as a [CodecError] instead of throwing or
  * silently returning a half-decoded string. The previous implementation returned
@@ -57,6 +61,9 @@ object Codecs {
   /** Hex output keeps the original space-separated layout for terminal readability. */
   private const val HEX_SEPARATOR = " "
   private const val HEX_DIGITS = "0123456789abcdef"
+
+  /** Highest code point the ASCII format accepts, 7-bit clean. */
+  private const val ASCII_MAX = 127
 
   fun transform(input: String, mode: CodecMode, format: CodecFormat): CodecResult {
     if (input.isEmpty()) return CodecResult.Failure(CodecError.EMPTY_INPUT)
@@ -87,6 +94,28 @@ object Codecs {
     } catch (e: Exception) {
       CodecResult.Failure(CodecError.INVALID_URL_ESCAPE)
     }
+
+    CodecFormat.ASCII -> encodeAscii(input)
+  }
+
+  /**
+   * Decimal ASCII codes, space separated, so the output stays readable in a
+   * terminal and pasteable into a shell.
+   *
+   * Deliberately restricted to 7-bit ASCII (0..127): the format's whole point is
+   * interoperability, and code points above 127 would produce numbers that mean
+   * nothing in a Western `tr`/escape context. Those are reported as an error
+   * rather than silently encoded, which would produce a payload that looks valid
+   * and decodes to something else entirely.
+   */
+  private fun encodeAscii(input: String): CodecResult {
+    val codes = ArrayList<String>(input.length)
+    for (char in input) {
+      val code = char.code
+      if (code > ASCII_MAX) return CodecResult.Failure(CodecError.NON_ASCII_INPUT)
+      codes.add(code.toString())
+    }
+    return CodecResult.Success(codes.joinToString(" "))
   }
 
   fun decode(input: String, format: CodecFormat): CodecResult {
@@ -98,7 +127,33 @@ object Codecs {
       } catch (e: Exception) {
         CodecResult.Failure(CodecError.INVALID_URL_ESCAPE)
       }
+      CodecFormat.ASCII -> decodeAscii(input)
     }
+  }
+
+  /**
+   * Inverse of [encodeAscii]: space-separated decimal codes back to text.
+   *
+   * Whitespace between and around the codes is ignored, the way a shell would
+   * tokenise them. A token that is not a number, or is outside 0..127, fails the
+   * whole transform - a partial decode would hand the user a plausible-looking
+   * string that is not what was encoded.
+   */
+  private fun decodeAscii(input: String): CodecResult {
+    val out = StringBuilder()
+    var expected = 0
+    for (token in input.trim().split(' ', '\t', '\n', '\r')) {
+      if (token.isEmpty()) continue
+      val code = token.toIntOrNull()
+        ?: return CodecResult.Failure(CodecError.INVALID_ASCII_CODE)
+      if (code < 0 || code > ASCII_MAX) {
+        return CodecResult.Failure(CodecError.INVALID_ASCII_CODE)
+      }
+      out.append(code.toChar())
+      expected++
+    }
+    return if (expected == 0) CodecResult.Failure(CodecError.EMPTY_INPUT)
+    else CodecResult.Success(out.toString())
   }
 
   private fun decodeBase64(input: String): CodecResult {

@@ -29,6 +29,22 @@ object CyberSecurityManager {
   private const val KEY_USER_CONFIGURED = "user_configured"
 
   /**
+   * Cached answer to "is the active code still the factory one?".
+   *
+   * Answering that honestly costs a full PBKDF2 derivation - 210k iterations,
+   * several seconds on the low-end ARM hardware this app is expected to run on.
+   * Settings used to pay that cost every single time the tab was opened, just to
+   * decide whether to show the "replace the public default" warning.
+   *
+   * The value is stored next to the hash and rewritten by the only two functions
+   * that can change the active code ([setCombination], [clearCombination]), so the
+   * cache cannot outlive the fact it reports. A legacy install that predates the
+   * key, or one whose cached value was lost, falls back to computing the real
+   * answer and repairs the cache.
+   */
+  private const val KEY_USES_FACTORY_CACHE = "uses_factory_code_cached"
+
+  /**
    * The factory code shipped with the app. It is public by necessity - the
    * first-run screen has to show it - but [isUsingFactoryCode] lets Settings
    * nag the operator into replacing it.
@@ -48,9 +64,23 @@ object CyberSecurityManager {
   fun isUserConfigured(context: Context): Boolean =
     prefs(context).getBoolean(KEY_USER_CONFIGURED, false) && storedHash(context) != null
 
-  /** True when the active code is still the factory one. */
-  fun isUsingFactoryCode(context: Context): Boolean =
-    verifyCombination(context, FACTORY_COMBINATION)
+  /**
+   * True when the active code is still the factory one.
+   *
+   * Cached: see [KEY_USES_FACTORY_CACHE]. The cache is only trusted when a hash
+   * is actually present, so wiping the app cannot leave a stale "yes, still the
+   * factory code" behind.
+   */
+  fun isUsingFactoryCode(context: Context): Boolean {
+    val store = prefs(context)
+    val hasHash = !store.getString(KEY_STORED_HASH, null).isNullOrBlank()
+    if (hasHash && store.contains(KEY_USES_FACTORY_CACHE)) {
+      return store.getBoolean(KEY_USES_FACTORY_CACHE, true)
+    }
+    val answer = verifyCombination(context, FACTORY_COMBINATION)
+    store.edit { putBoolean(KEY_USES_FACTORY_CACHE, answer) }
+    return answer
+  }
 
   /**
    * Verifies [digits] against the stored hash in constant time.
@@ -73,9 +103,16 @@ object CyberSecurityManager {
     if (digits.size != COMBINATION_LENGTH || digits.any { it !in 0..9 }) return false
     val hash = CryptoCore.passwordHash(digits.joinToString(""))
     if (hash.isEmpty()) return false
+    // Compared by value, not by verifying against the hash written above: that
+    // hash *is* the hash of `digits`, so it would always match and report every
+    // code as the factory one.
+    val stillFactory = digits == FACTORY_COMBINATION
     prefs(context).edit {
       putString(KEY_STORED_HASH, hash)
       putBoolean(KEY_USER_CONFIGURED, true)
+      // Kept in step with the hash above: this is the only place the active code
+      // becomes a user-chosen one, so the cache is written here and nowhere else.
+      putBoolean(KEY_USES_FACTORY_CACHE, stillFactory)
       remove(KEY_LEGACY_PLAINTEXT)
     }
     return true
@@ -88,6 +125,9 @@ object CyberSecurityManager {
       remove(KEY_STORED_HASH)
       remove(KEY_LEGACY_PLAINTEXT)
       putBoolean(KEY_USER_CONFIGURED, false)
+      // Clearing re-seeds the factory combination, so the cache says "factory"
+      // without needing a derivation.
+      putBoolean(KEY_USES_FACTORY_CACHE, true)
     }
     if (seed.isNotEmpty()) {
       prefs(context).edit { putString(KEY_STORED_HASH, seed) }
@@ -116,7 +156,12 @@ object CyberSecurityManager {
 
     val seed = CryptoCore.passwordHash(FACTORY_COMBINATION.joinToString(""))
     if (seed.isEmpty()) return null
-    store.edit { putString(KEY_STORED_HASH, seed) }
+    store.edit {
+      putString(KEY_STORED_HASH, seed)
+      // A first-run seed is by definition the factory combination; recording that
+      // here spares the first Settings visit a derivation it would otherwise pay.
+      putBoolean(KEY_USES_FACTORY_CACHE, true)
+    }
     return seed
   }
 

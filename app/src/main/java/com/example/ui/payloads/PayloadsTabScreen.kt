@@ -2,6 +2,8 @@ package com.example.ui.payloads
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -62,6 +64,7 @@ import com.example.ui.theme.LocalCyberPalette
  *  - the environment set is driven by [PayloadEnvironment.entries], so adding a
  *    shell automatically adds a chip.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PayloadsTabScreen(
   host: String,
@@ -142,11 +145,12 @@ fun PayloadsTabScreen(
         icon = Icons.Default.Code,
         label = stringResource(R.string.payload_environment_label)
       )
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+      // Wraps instead of scrolling: five chips on a 384dp screen hid the last two
+      // off the right edge with no scroll affordance, so PowerShell looked absent.
+      FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
       ) {
         PayloadEnvironment.entries.forEach { candidate ->
           CyberChoiceChip(
@@ -192,31 +196,69 @@ fun PayloadsTabScreen(
       shape = RoundedCornerShape(12.dp),
       border = BorderStroke(1.dp, palette.border)
     ) {
-      Row(
+      Column(
         modifier = Modifier.padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(8.dp)
       ) {
-        Icon(
-          Icons.Default.Security,
-          contentDescription = null,
-          tint = palette.primary,
-          modifier = Modifier.size(22.dp)
-        )
-        Spacer(Modifier.width(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(
+            Icons.Default.Security,
+            contentDescription = null,
+            tint = palette.primary,
+            modifier = Modifier.size(22.dp)
+          )
+          Spacer(Modifier.width(10.dp))
+          Text(
+            text = stringResource(R.string.payload_purpose_title),
+            color = palette.primary,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+          )
+        }
         Text(
-          text = stringResource(R.string.payload_disclaimer),
+          text = stringResource(R.string.payload_purpose_body),
           color = palette.mutedForeground,
           fontSize = 12.5.sp,
           fontWeight = FontWeight.Medium
         )
+        Spacer(Modifier.height(2.dp))
+        Text(
+          text = stringResource(R.string.payload_current_label),
+          color = palette.foreground,
+          fontSize = 12.sp,
+          fontWeight = FontWeight.Bold
+        )
+        Text(
+          text = stringResource(environment.explanationRes),
+          color = palette.mutedForeground,
+          fontSize = 12.5.sp,
+          fontWeight = FontWeight.Medium
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+          text = stringResource(R.string.payload_order_hint),
+          color = palette.foreground,
+          fontSize = 12.5.sp,
+          fontWeight = FontWeight.Medium
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+          text = stringResource(R.string.payload_disclaimer),
+          color = palette.mutedForeground,
+          fontSize = 12.sp,
+          fontWeight = FontWeight.Medium
+        )
       }
-      Spacer(Modifier.height(8.dp))
-      Text(
-        text = stringResource(R.string.payload_no_exec_note),
-        color = palette.mutedForeground,
-        fontSize = 12.5.sp,
-        fontWeight = FontWeight.Medium
-      )
     }
   }
 }
+
+/** Per-environment explanation, so the form is never a mystery box. */
+private val PayloadEnvironment.explanationRes: Int
+  get() = when (this) {
+    PayloadEnvironment.BASH -> R.string.payload_explain_bash
+    PayloadEnvironment.PYTHON -> R.string.payload_explain_python
+    PayloadEnvironment.POWERSHELL -> R.string.payload_explain_powershell
+    PayloadEnvironment.NETCAT -> R.string.payload_explain_netcat
+    PayloadEnvironment.PING -> R.string.payload_explain_ping
+  }

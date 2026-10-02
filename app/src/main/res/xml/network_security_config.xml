@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  CyberToolkit never talks to the network. This config makes that guarantee
-  explicit and machine-checkable rather than a UI claim:
+  Cleartext is denied everywhere, including to the user's own lab host.
 
-  - cleartext traffic is denied everywhere (belt-and-braces with usesCleartextTraffic)
-  - the system CA store is trusted, but since no INTERNET permission is declared
-    in the manifest, no socket can be opened regardless of these settings.
+  An SSH server is reached over its own encrypted channel, so it needs no cleartext
+  HTTP exception. Denying it globally means a downgrade to `http://` cannot happen
+  by accident, and the app cannot be talked into leaking a credential over a
+  plaintext socket.
 -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="false">

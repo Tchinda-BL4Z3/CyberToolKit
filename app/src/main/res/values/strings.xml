@@ -81,6 +81,8 @@
     <string name="encoder_error_no_hex">L\'entrée ne contient aucun chiffre hexadécimal valide.</string>
     <string name="encoder_error_base64">Entrée Base64 invalide.</string>
     <string name="encoder_error_url">Séquence d\'échappement URL invalide.</string>
+<string name="encoder_error_non_ascii">Caractère hors ASCII 7 bits (0-127). Le format ASCII refuse les caractères étendus.</string>
+<string name="encoder_error_ascii_code">Code ASCII invalide : chaque valeur doit être un nombre entre 0 et 127.</string>
 
     <!-- ============ Onglet 2 : Crypto ============ -->
     <string name="crypto_input_label">Texte à hacher</string>
@@ -117,6 +119,10 @@
     <!-- ============ Onglet 3 : Cheat Sheets ============ -->
     <string name="sheets_search_placeholder">Rechercher une commande…</string>
     <string name="sheets_reference_note">Aide-mémoire à copier : les commandes sont fournies pour être relues et exécutées sur vos propres équipements, jamais depuis cette application.</string>
+<string name="sheets_shell_label">LABO LOCAL (SANDBOX)</string>
+<string name="sheets_shell_disclaimer">Interpréteur intégré : commandes simulées sur un système de fichiers virtuel. Aucun processus n\'est lancé, aucun réseau n\'est utilisé.</string>
+<string name="sheets_shell_welcome">$ help    pour la liste des commandes intégrées</string>
+<string name="sheets_shell_placeholder">Tapez une commande, puis Entrée</string>
     <string name="sheets_no_results">Aucune commande correspondante.</string>
     <string name="sheets_filter_all">Toutes</string>
 
@@ -218,4 +224,41 @@
 
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_seconds">%1$d s</string>
+    <string name="payload_purpose_title">À QUOI ÇA SERT, CONCRÈTEMENT</string>
+    <string name="payload_purpose_body">Un payload est une simple ligne de texte pré-remplie. L\'app ne l\'exécute pas : elle l\'écrit pour vous. Vous la copiez dans Ncat ou un terminal, sur VOTRE machine de labo, après y avoir accédé par une faille que vous avez trouvée.</string>
+    <string name="payload_current_label">CELUI QUE VOUS VENEZ DE GÉNÉRER</string>
+    <string name="payload_explain_bash">Redirection bash : Bash ouvre une connexion TCP sortante vers votre hôte et votre port. À essayer en premier, mais la cible doit avoir Bash (rare sur Windows).</string>
+    <string name="payload_explain_powershell">Équivalent Windows. Utile si la cible est un serveur Windows, où Bash n\'existe pas.</string>
+    <string name="payload_explain_python">Version la plus fiable : lance un pseudo-terminal interactif. Fonctionne partout où Python 2 est installé. Plus longue parce qu\'elle installe elle-même le terminal.</string>
+    <string name="payload_explain_netcat">Le classique. Partout où netcat existe, MAIS l\'option -e a été retirée des versions récentes : cette variante échoue souvent.</string>
+    <string name="payload_explain_ping">Pas une session : vérifie seulement que la machine répond. Utile comme première étape, pour savoir si l\'IP est vivante.</string>
+    <string name="payload_order_hint">Ordre à essayer : Bash, puis Python, puis Netcat. Le premier qui fonctionne dépend de ce qui est installé sur la cible.</string>
+    <string name="settings_ssh_title">Client SSH (réseau)</string>
+    <string name="settings_ssh_body_off">DÉSACTIVÉ. Aucune connexion sortante. Activez pour exécuter une commande sur une machine de labo dont vous avez les identifiants.</string>
+    <string name="settings_ssh_body_on">ACTIVÉ. L\'app peut se connecter à votre machine de labo. Les identifiants ne sont jamais écrits sur le disque.</string>
+    <string name="settings_ssh_on_badge">RÉSEAU ACTIVÉ</string>
+    <string name="settings_offline_body_ssh_on">Modules hors-ligne : aucune connexion. Seule la commande SSH ci-dessous utilise le réseau.</string>
+    <string name="ssh_optin_blocked">Activez le client SSH dans Paramètres &gt; Données et vie privée.</string>
+    <string name="ssh_connect">EXÉCUTER</string>
+    <string name="ssh_title">Exécution à distance (SSH)</string>
+    <string name="ssh_host_label">HÔTE</string>
+    <string name="ssh_port_label">PORT</string>
+    <string name="ssh_user_label">UTILISATEUR</string>
+    <string name="ssh_key_label">CLÉ PRIVÉE (PEM)</string>
+    <string name="ssh_passphrase_label">PASSPHRASE (optionnel)</string>
+    <string name="ssh_command_label">COMMANDE</string>
+    <string name="ssh_command_hint">Une seule commande, sans PTY ni shell interactif.</string>
+    <string name="ssh_output">SORTIE</string>
+    <string name="ssh_idle">Aucune commande exécutée.</string>
+    <string name="ssh_running">Connexion…</string>
+    <string name="ssh_legal_note">Connexion uniquement vers une machine que vous possédez ou autorisation. Aucune donnée n\'est envoyée à un tiers : la commande va à votre hôte, rien d\'autre.</string>
+    <string name="sheets_shell_open_subtitle">Terminal simulé : commandes locales et réseau inventé. Aucune connexion réelle.</string>
+    <string name="ssh_open_subtitle_on">ACTIVÉ — exécuter une commande sur votre machine de labo</string>
+    <string name="ssh_open_subtitle_off">DÉSACTIVÉ — activer dans Paramètres &gt; Données et vie privée</string>
+    <string name="lab_what_title">CE QUE C\'EST</string>
+    <string name="lab_what_body">Un mini-terminal qui fonctionne entièrement dans l\'app. Tapez une commande en bas, appuyez sur Entrée, le résultat s\'affiche au-dessus.</string>
+    <string name="lab_safety_title">CE QUE CE N\'EST PAS</string>
+    <string name="lab_safety_body">Ce n\'est pas un terminal Linux. Aucun programme n\'est lancé, aucun fichier du téléphone n\'est lu, aucun réseau n\'est utilisé. Les commandes réseau (nmap, ping, tcpdump) inventent leurs réponses : elles servent à apprendre la forme d\'un résultat, pas à scanner une vraie machine. Pour une vraie machine, utilisez le client SSH plus bas.</string>
+    <string name="lab_try_title">ESSAYEZ</string>
+    <string name="lab_try_body">Tapez « help » puis Entrée pour la liste complète. Les boutons ci-dessous font la même chose qu\'écrire à la main.</string>
 </resources>

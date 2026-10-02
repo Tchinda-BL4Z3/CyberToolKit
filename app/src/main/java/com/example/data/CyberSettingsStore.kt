@@ -17,7 +17,17 @@ data class CyberSettings(
   val hapticsEnabled: Boolean = true,
   val blockScreenCapture: Boolean = true,
   val autoLockDelaySeconds: Int = DEFAULT_AUTO_LOCK_SECONDS,
-  val autoLockAfterCodeChange: Boolean = true
+  val autoLockAfterCodeChange: Boolean = true,
+  /**
+   * Master switch for the SSH client. Defaults to off.
+   *
+   * Android grants `INTERNET` at install with no runtime prompt, so the consent
+   * decision cannot live in a permission dialog the way a camera or location
+   * prompt would. This flag is the substitute: until the operator turns it on,
+   * [com.example.ssh.SshSession] refuses every connection, and the UI shows the
+   * reason instead of failing silently.
+   */
+  val sshEnabled: Boolean = false
 ) {
   companion object {
     const val DEFAULT_HOST = "10.10.14.21"
@@ -56,7 +66,8 @@ class CyberSettingsStore(context: Context) {
     // existing install drops it instead of carrying a dead flag forever.
     blockScreenCapture = prefs.getBoolean(KEY_BLOCK_CAPTURE, true),
     autoLockDelaySeconds = prefs.getInt(KEY_AUTO_LOCK, CyberSettings.DEFAULT_AUTO_LOCK_SECONDS),
-    autoLockAfterCodeChange = prefs.getBoolean(KEY_AUTOLOCK_ON_CHANGE, true)
+    autoLockAfterCodeChange = prefs.getBoolean(KEY_AUTOLOCK_ON_CHANGE, true),
+    sshEnabled = prefs.getBoolean(KEY_SSH_ENABLED, false)
   )
 
   fun save(settings: CyberSettings) {
@@ -68,6 +79,7 @@ class CyberSettingsStore(context: Context) {
       putBoolean(KEY_BLOCK_CAPTURE, settings.blockScreenCapture)
       putInt(KEY_AUTO_LOCK, settings.autoLockDelaySeconds)
       putBoolean(KEY_AUTOLOCK_ON_CHANGE, settings.autoLockAfterCodeChange)
+      putBoolean(KEY_SSH_ENABLED, settings.sshEnabled)
       // Drop the dead `strict_offline` entry written by older builds.
       remove(KEY_OFFLINE)
     }
@@ -88,5 +100,6 @@ class CyberSettingsStore(context: Context) {
     const val KEY_BLOCK_CAPTURE = "block_screen_capture"
     const val KEY_AUTO_LOCK = "auto_lock_seconds"
     const val KEY_AUTOLOCK_ON_CHANGE = "autolock_on_code_change"
+    const val KEY_SSH_ENABLED = "ssh_enabled"
   }
 }

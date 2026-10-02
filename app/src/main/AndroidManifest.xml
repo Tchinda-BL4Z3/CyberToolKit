@@ -3,10 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      Deliberately NO <uses-permission> entries.
-      CyberToolkit is a fully offline toolbox: no INTERNET, no ACCESS_NETWORK_STATE.
-      Its promise is enforced at the permission level, not just in the UI.
+      INTERNET is declared for exactly one feature: the opt-in SSH client, which
+      connects to lab machines the operator owns and has credentials for.
+
+      Nothing else in the app opens a socket. The offline modules (encoder,
+      crypto, lock, the simulated lab) never touch the network, and the SSH client
+      refuses to run until the operator explicitly enables it in Settings.
+
+      This is declared in the manifest rather than requested at runtime because
+      Android has no runtime consent prompt for INTERNET: the user's decision point
+      is the in-app opt-in switch, and the Play Console data safety form must
+      declare network use accordingly.
     -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="false"

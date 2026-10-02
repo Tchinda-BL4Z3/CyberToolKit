@@ -215,4 +215,75 @@ class CyberSecurityManagerTest {
     assertTrue(CyberSecurityManager.isWeakCombination(listOf(1, 2, 3)))
     assertTrue(CyberSecurityManager.isWeakCombination(emptyList()))
   }
+
+  // ---- factory-code cache --------------------------------------------------
+
+  /**
+   * The cache exists so opening Settings does not pay a full PBKDF2 derivation.
+   * These tests pin the *correctness* side of that trade: the cached answer must
+   * still be right after every operation that can change the active code.
+   */
+  @Test
+  fun `a fresh install reports the factory code`() {
+    assertTrue(CyberSecurityManager.isUsingFactoryCode(context))
+  }
+
+  @Test
+  fun `setting a different code clears the factory-code flag`() {
+    assertTrue(CyberSecurityManager.setCombination(context, listOf(4, 7, 2, 9, 3)))
+    assertFalse(CyberSecurityManager.isUsingFactoryCode(context))
+  }
+
+  /** Choosing the factory digits explicitly is still the factory code. */
+  @Test
+  fun `setting the factory digits themselves keeps the flag set`() {
+    assertTrue(CyberSecurityManager.setCombination(context, listOf(1, 1, 1, 1, 1)))
+    assertTrue(CyberSecurityManager.isUsingFactoryCode(context))
+  }
+
+  @Test
+  fun `clearing re-seeds the factory code and the flag with it`() {
+    CyberSecurityManager.setCombination(context, listOf(4, 7, 2, 9, 3))
+    assertFalse(CyberSecurityManager.isUsingFactoryCode(context))
+    CyberSecurityManager.clearCombination(context)
+    assertTrue(CyberSecurityManager.isUsingFactoryCode(context))
+    assertTrue(CyberSecurityManager.verifyCombination(context, listOf(1, 1, 1, 1, 1)))
+  }
+
+  @Test
+  fun `repeated rotations keep the flag accurate`() {
+    listOf(listOf(4, 7, 2, 9, 3), listOf(1, 1, 1, 1, 1), listOf(8, 5, 3, 1, 9))
+      .forEach { code ->
+        CyberSecurityManager.setCombination(context, code)
+        assertEquals(
+          code == listOf(1, 1, 1, 1, 1),
+          CyberSecurityManager.isUsingFactoryCode(context)
+        )
+      }
+  }
+
+  /**
+   * A wiped app must not inherit a stale "yes, still the factory code". The
+   * cache is only trusted when a hash is actually present, so this holds even if
+   * the boolean outlives the hash.
+   */
+  @Test
+  fun `a wiped install does not inherit a stale factory-code flag`() {
+    CyberSecurityManager.setCombination(context, listOf(4, 7, 2, 9, 3))
+    assertFalse(CyberSecurityManager.isUsingFactoryCode(context))
+    CyberSecurityManager.clearCombination(context)
+    assertTrue(CyberSecurityManager.isUsingFactoryCode(context))
+    securityPrefs().edit().remove("combination_hash_v2").commit()
+    // Re-seeds on the next access, and the fresh seed is the factory code.
+    assertTrue(CyberSecurityManager.isUsingFactoryCode(context))
+  }
+
+  /** The cached value is a boolean, never the code or anything derived from it. */
+  @Test
+  fun `the cache stores a flag, never code material`() {
+    CyberSecurityManager.setCombination(context, listOf(4, 7, 2, 9, 3))
+    val entry = securityPrefs().all["uses_factory_code_cached"]
+    assertTrue("expected a Boolean flag", entry is Boolean)
+    assertEquals(false, entry)
+  }
 }

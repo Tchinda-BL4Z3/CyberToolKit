@@ -17,9 +17,11 @@ kotlinxCoroutinesAndroid = "1.10.2"
 kotlinxCoroutinesCore = "1.10.2"
 robolectric = "4.16.1"
 roborazzi = "1.59.0"
+jsch = "0.2.17"
 
 
 [libraries]
+jsch = { group = "com.github.mwiede", name = "jsch", version.ref = "jsch" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

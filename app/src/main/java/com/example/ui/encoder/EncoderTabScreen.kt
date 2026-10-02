@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,6 +78,7 @@ import com.example.ui.theme.LocalCyberPalette
  *    than raw strings, so a renamed label can no longer silently fall through to
  *    the identity transform.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EncoderTabScreen(
   input: String,
@@ -242,11 +245,12 @@ fun EncoderTabScreen(
         icon = Icons.Default.AutoAwesome,
         label = stringResource(R.string.encoder_presets_label)
       )
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+      // Wraps rather than scrolls, for the same reason as the category chips:
+      // a scrollable row clipped the presets with no visual hint that more existed.
+      FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
       ) {
         encoderPresets().forEach { (label, value) ->
           CyberChoiceChip(
@@ -324,6 +328,8 @@ private fun CodecError.messageRes(): Int = when (this) {
   CodecError.NO_HEX_DIGIT -> R.string.encoder_error_no_hex
   CodecError.INVALID_BASE64 -> R.string.encoder_error_base64
   CodecError.INVALID_URL_ESCAPE -> R.string.encoder_error_url
+  CodecError.NON_ASCII_INPUT -> R.string.encoder_error_non_ascii
+  CodecError.INVALID_ASCII_CODE -> R.string.encoder_error_ascii_code
 }
 
 @Composable

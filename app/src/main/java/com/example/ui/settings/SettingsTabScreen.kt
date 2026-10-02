@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Lan
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
@@ -655,11 +656,32 @@ fun SettingsTabScreen(
           .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
+        // The offline badge used to read "GARANTI", which the SSH feature made
+        // untrue. It now states the real rule: the offline modules never open a
+        // socket, and the one network path is gated by the switch below.
         SettingStatusRow(
           icon = Icons.Default.WifiOff,
           title = stringResource(R.string.settings_offline_title),
-          body = stringResource(R.string.settings_offline_body),
-          badge = stringResource(R.string.settings_offline_enforced)
+          body = stringResource(
+            if (settings.sshEnabled) R.string.settings_offline_body_ssh_on
+            else R.string.settings_offline_body
+          ),
+          badge = stringResource(
+            if (settings.sshEnabled) R.string.settings_ssh_on_badge
+            else R.string.settings_offline_enforced
+          )
+        )
+
+        SettingSwitchRow(
+          icon = Icons.Default.Lan,
+          title = stringResource(R.string.settings_ssh_title),
+          body = stringResource(
+            if (settings.sshEnabled) R.string.settings_ssh_body_on
+            else R.string.settings_ssh_body_off
+          ),
+          checked = settings.sshEnabled,
+          onCheckedChange = { value -> onSettingsChange { it.copy(sshEnabled = value) } },
+          modifier = Modifier.testTag("ssh_optin_switch")
         )
 
         Text(
@@ -1258,11 +1280,12 @@ private fun SettingSwitchRow(
   body: String,
   checked: Boolean,
   onCheckedChange: (Boolean) -> Unit,
-  enabled: Boolean = true
+  enabled: Boolean = true,
+  modifier: Modifier = Modifier
 ) {
   val palette = LocalCyberPalette.current
   Row(
-    modifier = Modifier
+    modifier = modifier
       .fillMaxWidth()
       .heightIn(min = 48.dp),
     horizontalArrangement = Arrangement.SpaceBetween,

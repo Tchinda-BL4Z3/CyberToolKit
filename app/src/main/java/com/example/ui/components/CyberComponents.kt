@@ -28,9 +28,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -45,6 +48,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +73,11 @@ import com.example.R
 import com.example.ui.theme.LocalCyberPalette
 import com.example.ui.theme.TerminalFontFamily
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.focus.onFocusChanged
 
 /** Small uppercase heading with an icon and an optional trailing action. */
 @Composable
@@ -263,6 +272,13 @@ fun CyberTerminalBox(
  * `CyberSurface`, and only some of them set `cursorColor`. Any future colour
  * change had to be made six times and one was always missed.
  */
+// BringIntoViewRequester is still marked experimental in Compose foundation.
+//
+// It is opted into deliberately: it is the only supported way to keep a focused
+// field visible when the IME shrinks the window, and the alternative on a 240dpi
+// screen is a caret hidden under the keyboard with the rest of the tab
+// unreachable. The surface area used here is small and stable.
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CyberTextField(
   value: String,
@@ -278,15 +294,38 @@ fun CyberTextField(
   supportingText: String? = null,
   visualTransformation: VisualTransformation = VisualTransformation.None,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+  keyboardActions: KeyboardActions = KeyboardActions.Default,
   leadingIcon: (@Composable () -> Unit)? = null,
   trailingIcon: (@Composable () -> Unit)? = null,
   testTag: String? = null
 ) {
   val palette = LocalCyberPalette.current
+
+  // Keep the focused field on screen once the IME shrinks the window.
+  //
+  // On a 576x1280 / 240dpi device the visible height drops to roughly 230dp when
+  // the keyboard opens. Without this, `imePadding()` shrinks the container and the
+  // field being typed into slides under the keyboard: the caret is hidden and
+  // everything below it is unreachable. Compose does not do this automatically for
+  // a plain `verticalScroll`, so every field requests its own reveal.
+  //
+  // Implemented here rather than per-call-site so no future field can forget it.
+  val bringIntoView = remember { BringIntoViewRequester() }
+  val scope = rememberCoroutineScope()
+
   OutlinedTextField(
     value = value,
     onValueChange = onValueChange,
-    modifier = modifier.then(if (testTag != null) Modifier.testTag(testTag) else Modifier),
+    modifier = modifier
+      .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
+      .bringIntoViewRequester(bringIntoView)
+      .onFocusChanged { state ->
+        if (state.isFocused) {
+          // Launched after the focus change so the IME has been applied and the
+          // container already resized; requesting earlier measures the old bounds.
+          scope.launch { bringIntoView.bringIntoView() }
+        }
+      },
     label = label?.let { { Text(it, fontSize = 12.5.sp) } },
     placeholder = placeholder?.let { { Text(it, color = palette.mutedForeground, fontSize = 14.sp) } },
     supportingText = supportingText?.let { { Text(it, fontSize = 11.5.sp) } },
@@ -297,6 +336,7 @@ fun CyberTextField(
     isError = isError,
     visualTransformation = visualTransformation,
     keyboardOptions = keyboardOptions,
+    keyboardActions = keyboardActions,
     leadingIcon = leadingIcon,
     trailingIcon = trailingIcon,
     textStyle = LocalTextStyle.current.merge(
@@ -436,7 +476,13 @@ fun CyberBadge(
 fun CyberMessage(
   message: String,
   isError: Boolean,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  /**
+   * Optional bold lead-in. Used where a block needs a heading, because a run of
+   * three equally weighted paragraphs reads as a wall and the operator stops
+   * before reaching the terminal underneath.
+   */
+  title: String? = null
 ) {
   val palette = LocalCyberPalette.current
   val tint = if (isError) palette.destructive else palette.mutedForeground
@@ -448,20 +494,33 @@ fun CyberMessage(
         RoundedCornerShape(10.dp)
       )
       .padding(horizontal = 12.dp, vertical = 9.dp),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.Top
   ) {
     Icon(
       imageVector = if (isError) Icons.Default.ErrorOutline else Icons.Default.Info,
       contentDescription = null,
       tint = tint,
-      modifier = Modifier.size(16.dp)
+      modifier = Modifier
+        .padding(top = 1.dp)
+        .size(16.dp)
     )
     Spacer(Modifier.width(8.dp))
-    Text(
-      text = message,
-      color = tint,
-      fontSize = 12.5.sp
-    )
+    Column(modifier = Modifier.weight(1f)) {
+      if (title != null) {
+        Text(
+          text = title,
+          color = tint,
+          fontSize = 12.5.sp,
+          fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(2.dp))
+      }
+      Text(
+        text = message,
+        color = tint,
+        fontSize = 12.5.sp
+      )
+    }
   }
 }
 
@@ -560,5 +619,106 @@ object SecureClipboard {
       // Pre-28 has no clearPrimaryClip(); overwrite with an empty clip instead.
       clipboard.setPrimaryClip(ClipData.newPlainText(LABEL, ""))
     }
+  }
+}
+
+/**
+ * A full-width row that opens another screen.
+ *
+ * Used on tabs where several tools cannot share one scrollable column. Giving the
+ * lab shell and the SSH form their own route keeps each of them at a usable
+ * height instead of letting them take space from the content already on screen.
+ */
+@Composable
+fun CyberCardAction(
+  icon: ImageVector,
+  title: String,
+  subtitle: String,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier
+) {
+  val palette = LocalCyberPalette.current
+  Card(
+    onClick = onClick,
+    modifier = modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = palette.surfaceRaised),
+    shape = RoundedCornerShape(12.dp),
+    border = BorderStroke(1.dp, palette.border)
+  ) {
+    Row(
+      modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = palette.primary,
+        modifier = Modifier.size(22.dp)
+      )
+      Spacer(Modifier.width(12.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+          text = title,
+          color = palette.foreground,
+          fontSize = 14.sp,
+          fontWeight = FontWeight.Bold
+        )
+        Text(
+          text = subtitle,
+          color = palette.mutedForeground,
+          fontSize = 11.5.sp
+        )
+      }
+      Icon(
+        imageVector = Icons.Default.ChevronRight,
+        contentDescription = null,
+        tint = palette.mutedForeground,
+        modifier = Modifier.size(20.dp)
+      )
+    }
+  }
+}
+
+/**
+ * Title bar for a pushed sub-screen, so a tool always has a way out.
+ *
+ * The tab bar is hidden while a sub-screen is up; without this the only escape
+ * would be the system back gesture, which leaves the operator guessing on a
+ * device with no navigation bar.
+ */
+@Composable
+fun CyberBackHeader(
+  title: String,
+  onBack: () -> Unit,
+  modifier: Modifier = Modifier
+) {
+  val palette = LocalCyberPalette.current
+  Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Card(
+      onClick = onBack,
+      colors = CardDefaults.cardColors(containerColor = palette.surfaceRaised),
+      shape = RoundedCornerShape(10.dp),
+      border = BorderStroke(1.dp, palette.border),
+      modifier = Modifier.testTag("back_button")
+    ) {
+      Icon(
+        imageVector = Icons.Default.ArrowBack,
+        contentDescription = null,
+        tint = palette.primary,
+        modifier = Modifier
+          .padding(8.dp)
+          .size(20.dp)
+      )
+    }
+    Spacer(Modifier.width(12.dp))
+    Text(
+      text = title,
+      color = palette.foreground,
+      fontSize = 16.sp,
+      fontWeight = FontWeight.Bold
+    )
   }
 }
