@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces & Fonds */
+  --pss-bg-canvas: #090d14;
+  --pss-bg-surface: #101622;
+  --pss-bg-elevated: #162030;
+  --pss-bg-card: rgba(16, 22, 34, 0.75);
+  --pss-bg-hover: #1c283c;
+  --pss-bg-active: #24344d;
+
+  /* Bordures */
+  --pss-border-subtle: #1c2637;
+  --pss-border-medium: #2a3a52;
+  --pss-border-strong: #3d5272;
+  --pss-border-glow: rgba(59, 130, 246, 0.3);
+
+  /* Typographie */
+  --pss-text-primary: #f8fafc;
+  --pss-text-secondary: #94a3b8;
+  --pss-text-muted: #64748b;
+  --pss-text-disabled: #475569;
+
+  /* Niveaux de confiance */
+  --pss-conf-certain-bg: rgba(239, 68, 68, 0.12);
+  --pss-conf-certain-border: rgba(239, 68, 68, 0.4);
+  --pss-conf-certain-fg: #fca5a5;
+  --pss-conf-certain-glow: rgba(239, 68, 68, 0.2);
+
+  --pss-conf-probable-bg: rgba(245, 158, 11, 0.12);
+  --pss-conf-probable-border: rgba(245, 158, 11, 0.4);
+  --pss-conf-probable-fg: #fcd34d;
+  --pss-conf-probable-glow: rgba(245, 158, 11, 0.2);
+
+  --pss-conf-possible-bg: rgba(148, 163, 184, 0.08);
+  --pss-conf-possible-border: rgba(148, 163, 184, 0.25);
+  --pss-conf-possible-fg: #cbd5e1;
+
+  --pss-local-bg: rgba(16, 185, 129, 0.12);
+  --pss-local-border: rgba(16, 185, 129, 0.35);
+  --pss-local-fg: #6ee7b7;
+
+  /* Fontes */
+  --pss-font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --pss-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--pss-bg-canvas);
+  color: var(--pss-text-primary);
+  font-family: var(--pss-font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Background image avec overlay cyber */
+.pss-cyber-bg {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.25) 0%, transparent 65%),
+    linear-gradient(to bottom, rgba(9, 13, 20, 0.82) 0%, rgba(9, 13, 20, 0.96) 100%),
+    url('/src/assets/images/security_scanner_bg_1791285411399.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grille géométrique */
+.pss-grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#app {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+code, pre, .font-mono-pss {
+  font-family: var(--pss-font-mono);
+}
+
+/* Glass card responsive */
+.pss-glass {
+  background: var(--pss-bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--pss-border-subtle);
+}
+
+.pss-glass:hover {
+  border-color: var(--pss-border-medium);
+}
+
+/* Boutons adaptés au mobile (touch targets) */
+.pss-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+  min-height: 36px;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.pss-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.pss-btn-primary:hover, .pss-btn-primary:active {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+}
+
+.pss-btn-secondary {
+  background: #162030;
+  color: #e2e8f0;
+  border-color: #2a3a52;
+}
+.pss-btn-secondary:hover, .pss-btn-secondary:active {
+  background: #1e2c42;
+  border-color: #3d5272;
+  color: #ffffff;
+}
+
+.pss-btn-danger {
+  background: rgba(159, 18, 57, 0.3);
+  color: #fda4af;
+  border-color: rgba(225, 29, 72, 0.4);
+}
+.pss-btn-danger:hover, .pss-btn-danger:active {
+  background: rgba(159, 18, 57, 0.5);
+  border-color: rgba(225, 29, 72, 0.7);
+  color: #ffffff;
+}
+
+/* Badges */
+.badge-certain {
+  background: var(--pss-conf-certain-bg) !important;
+  border: 1px solid var(--pss-conf-certain-border) !important;
+  color: var(--pss-conf-certain-fg) !important;
+}
+
+.badge-probable {
+  background: var(--pss-conf-probable-bg) !important;
+  border: 1px solid var(--pss-conf-probable-border) !important;
+  color: var(--pss-conf-probable-fg) !important;
+}
+
+.badge-possible {
+  background: var(--pss-conf-possible-bg) !important;
+  border: 1px solid var(--pss-conf-possible-border) !important;
+  color: var(--pss-conf-possible-fg) !important;
+}
+
+.badge-local {
+  background: var(--pss-local-bg) !important;
+  border: 1px solid var(--pss-local-border) !important;
+  color: var(--pss-local-fg) !important;
+}
+
+/* Animations de Scan */
+@keyframes scanLaser {
+  0% { top: 0%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.pss-scan-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.8) 50%, transparent 100%);
+  box-shadow: 0 0 14px 2px rgba(59, 130, 246, 0.6);
+  animation: scanLaser 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes radarRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pss-radar-spin {
+  animation: radarRotate 2.5s linear infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(0.98); }
+  50% { opacity: 0.9; transform: scale(1.02); }
+}
+
+.pss-pulse-glow {
+  animation: pulseGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0.7; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pss-drawer-anim {
+  animation: slideInRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pss-overlay-anim {
+  animation: fadeInOverlay 0.16s ease-out forwards;
+}
+
+/* Responsiveness tiroir mobile */
+@media (max-width: 640px) {
+  .pss-drawer-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--pss-border-subtle);
+  }
+}
+
+/* Scrollbar sobre */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #233147;
+  border-radius: 2px;
+}

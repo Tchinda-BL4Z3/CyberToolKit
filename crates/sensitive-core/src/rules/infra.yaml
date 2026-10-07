@@ -1,0 +1,58 @@
+# Règles « infrastructure et configuration » — catégorie infra.
+
+- id: infra.ip_private
+  name: Adresse IP privée
+  severity: low
+  type: ip_private
+  label_fr: Adresse IP privée
+  category: infra
+  extract:
+    pattern: '\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b'
+    max_length: 15
+  context:
+    keywords: [host, serveur, ip, réseau, endpoint, internal, tunnel]
+    window: 64
+  redaction:
+    strategy: type_only
+  confidence:
+    verified_with_context: probable
+    verified: probable
+    format_only: possible
+
+- id: infra.url_basic_auth
+  name: Identifiants dans une URL
+  severity: high
+  type: url_basic_auth
+  label_fr: Identifiants dans une URL (basic auth)
+  category: infra
+  extract:
+    pattern: '(?i)\b[a-z][a-z0-9+.-]*://[^/\s:@]+:[^/\s@]+@[^\s''"]+'
+    max_length: 2048
+  context:
+    keywords: [url, lien, http, endpoint, serveur, git, remote]
+    window: 64
+  redaction:
+    strategy: type_only
+  confidence:
+    verified_with_context: certain
+    verified: probable
+    format_only: probable
+
+- id: infra.url_with_token
+  name: Jeton dans une URL
+  severity: high
+  type: url_with_token
+  label_fr: Jeton ou secret passé dans une URL
+  category: infra
+  extract:
+    pattern: '(?i)\b[a-z][a-z0-9+.-]*://[^\s''"]*[?&](?:token|api_key|apikey|access_token|secret|key)=[^\s''&"]+'
+    max_length: 2048
+  context:
+    keywords: [url, lien, http, endpoint, serveur, appel, requête]
+    window: 64
+  redaction:
+    strategy: type_only
+  confidence:
+    verified_with_context: certain
+    verified: probable
+    format_only: probable

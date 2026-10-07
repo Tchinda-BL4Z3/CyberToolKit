@@ -1,0 +1,6 @@
+{
+  "name": "ProjectSecurityScanner",
+  "description": "Détecteur de données sensibles 100% local avant partage, e-mail ou IA conversationnelle. Moteur Rust compilé en WASM, architecture DOM vanilla, aucune télémétrie, aucun cloud.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
