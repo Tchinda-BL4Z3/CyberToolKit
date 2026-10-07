@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">CyberToolkit</string>
+
+    <!-- ============ Navigation ============ -->
+    <string name="tab_encoder">Encodeur</string>
+    <string name="tab_crypto">Crypto</string>
+    <string name="tab_sheets">Cheat Sheets</string>
+    <string name="tab_payloads">Payloads</string>
+    <string name="tab_settings">Paramètres</string>
+
+    <string name="subtitle_encoder">ENCODE / DECODE</string>
+    <string name="subtitle_crypto">HASHING &amp; CRYPTO</string>
+    <string name="subtitle_sheets">COMMANDS REFERENCE</string>
+    <string name="subtitle_payloads">TEST SCRIPTS GENERATOR</string>
+    <string name="subtitle_settings">SYSTEM &amp; SECURITY</string>
+
+    <string name="badge_offline">OFFLINE</string>
+    <string name="cd_lock_console">Verrouiller la console</string>
+    <string name="cd_app_logo">Logo CyberToolkit</string>
+
+    <!-- ============ Actions communes ============ -->
+    <string name="action_copy">Copier</string>
+    <string name="action_copied">Copié</string>
+    <string name="action_paste">Coller</string>
+    <string name="action_clear">Effacer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="cd_copy_to_clipboard">Copier dans le presse-papiers</string>
+    <string name="cd_increment_dial">Augmenter le chiffre</string>
+    <string name="cd_decrement_dial">Diminuer le chiffre</string>
+    <string name="cd_dial_value">Chiffre %1$d</string>
+
+    <!-- ============ Écran de verrouillage ============ -->
+    <string name="lock_app_title">CYBERTOOLKIT</string>
+    <string name="lock_app_subtitle">SECOPS TACTICAL CONSOLE</string>
+    <string name="cd_lock_status">État du verrou</string>
+
+    <string name="lock_status_auth_required">AUTHENTIFICATION REQUISE</string>
+    <string name="lock_status_correct">CODE CORRECT // ACCÈS AUTORISÉ</string>
+    <string name="lock_status_blocked">VERROUILLÉ // SÉCURITÉ ACTIVE</string>
+    <plurals name="lock_status_wrong_remaining">
+        <item quantity="one">CODE INCORRECT (%1$d ESSAI RESTANT)</item>
+        <item quantity="other">CODE INCORRECT (%1$d ESSAIS RESTANTS)</item>
+    </plurals>
+
+    <string name="lock_roulette_label">CODE À ROULETTE</string>
+    <plurals name="lock_attempts_badge">
+        <item quantity="one">ESSAI : %1$d/%2$d</item>
+        <item quantity="other">ESSAIS : %1$d/%2$d</item>
+    </plurals>
+    <string name="lock_badge_blocked">BLOQUÉ</string>
+
+    <string name="lock_blocked_countdown">VERROU BLOQUÉ : %1$s</string>
+    <plurals name="lock_blocked_explain">
+        <item quantity="one">Limite de %1$d essai atteinte. Déblocage automatique à la fin du décompte.</item>
+        <item quantity="other">Limite de %1$d essais atteinte. Déblocage automatique à la fin du décompte.</item>
+    </plurals>
+    <string name="lock_blocked_escalation">Pénalités successives doublées à chaque nouveau cycle.</string>
+    <string name="lock_blocked_clock_warning">Horloge système incohérente : durée de blocage allongée.</string>
+
+    <string name="lock_action_validate">VALIDER LE CODE</string>
+    <string name="lock_action_granted">ACCÈS AUTORISÉ</string>
+    <string name="lock_action_wrong">COMBINAISON ERRONÉE</string>
+    <string name="lock_action_locked">CONSOLE VERROUILLÉE</string>
+    <string name="lock_action_verifying">VÉRIFICATION…</string>
+
+    <!-- ============ Onglet 1 : Encodeur ============ -->
+    <string name="encoder_mode_encode">Encoder</string>
+    <string name="encoder_mode_decode">Decoder</string>
+    <string name="encoder_target_format">Format cible</string>
+    <string name="encoder_input_label">Entrée</string>
+    <string name="encoder_input_placeholder">Saisissez votre texte…</string>
+    <string name="encoder_result_label">Résultat</string>
+    <string name="encoder_result_placeholder">Le résultat s\'affichera ici…</string>
+    <string name="encoder_presets_label">Préréglages rapides</string>
+    <string name="encoder_preset_jwt">Jeton JWT</string>
+    <string name="encoder_preset_sqli">Injection SQL</string>
+    <string name="encoder_preset_xss">XSS</string>
+
+    <string name="encoder_error_odd_hex">Nombre de chiffres hexadécimaux impair : impossible à décoder.</string>
+    <string name="encoder_error_no_hex">L\'entrée ne contient aucun chiffre hexadécimal valide.</string>
+    <string name="encoder_error_base64">Entrée Base64 invalide.</string>
+    <string name="encoder_error_url">Séquence d\'échappement URL invalide.</string>
+<string name="encoder_error_non_ascii">Caractère hors ASCII 7 bits (0-127). Le format ASCII refuse les caractères étendus.</string>
+<string name="encoder_error_ascii_code">Code ASCII invalide : chaque valeur doit être un nombre entre 0 et 127.</string>
+
+    <!-- ============ Onglet 2 : Crypto ============ -->
+    <string name="crypto_input_label">Texte à hacher</string>
+    <string name="crypto_digests_label">Empreintes en temps réel</string>
+    <string name="crypto_aes_title">Chiffrement AES-256</string>
+    <string name="crypto_aes_badge">AES-GCM</string>
+    <string name="crypto_aes_key_label">Phrase secrète</string>
+    <string name="crypto_aes_key_helper">Clé dérivée par PBKDF2-HMAC-SHA256 (210 000 itérations), IV aléatoire par chiffrement.</string>
+    <string name="crypto_aes_encrypt">Chiffrer</string>
+    <string name="crypto_aes_decrypt">Déchiffrer</string>
+    <string name="crypto_aes_ciphertext_label">Chiffré (sel · IV · données)</string>
+    <string name="crypto_aes_plaintext_label">Déchiffré</string>
+    <string name="crypto_aes_error_empty">Renseignez à la fois le texte et la phrase secrète.</string>
+    <string name="crypto_aes_error_decrypt">Déchiffrement impossible : phrase secrète erronée ou données altérées.</string>
+    <string name="crypto_aes_strong_label">AES-256-GCM authentifié — la signature AEAD détecte toute altération.</string>
+    <!-- "CYB1" is the literal wire-format prefix (CYB1$...), not a typo. -->
+    <string name="crypto_aes_note_format" tools:ignore="Typos">Format CYB1$ : algorithme · itérations · sel · IV · données+signature.</string>
+
+    <string name="crypto_hmac_label">HMAC-SHA-256</string>
+    <string name="crypto_hmac_key">Clé HMAC</string>
+
+    <string name="crypto_password_title">Hachage de mot de passe (PBKDF2)</string>
+    <string name="crypto_password_action">Hacher le mot de passe</string>
+    <string name="crypto_password_iterations">Itérations (× 1 000)</string>
+    <string name="crypto_password_result_label">Empreinte stockable</string>
+    <string name="crypto_password_note">Format auto-descriptif : vérifiable après hausse du coût.</string>
+    <string name="crypto_strength_label">Force estimée : %1$s (%2$d/100)</string>
+    <string name="crypto_strength_empty">Vide</string>
+    <string name="crypto_strength_weak">Faible</string>
+    <string name="crypto_strength_fair">Correct</string>
+    <string name="crypto_strength_strong">Solide</string>
+    <string name="crypto_strength_excellent">Excellent</string>
+
+    <!-- ============ Onglet 3 : Cheat Sheets ============ -->
+    <string name="sheets_search_placeholder">Rechercher une commande…</string>
+    <string name="sheets_reference_note">Aide-mémoire à copier : les commandes sont fournies pour être relues et exécutées sur vos propres équipements, jamais depuis cette application.</string>
+<string name="sheets_shell_label">LABO LOCAL (SANDBOX)</string>
+<string name="sheets_shell_disclaimer">Interpréteur intégré : commandes simulées sur un système de fichiers virtuel. Aucun processus n\'est lancé, aucun réseau n\'est utilisé.</string>
+<string name="sheets_shell_welcome">$ help    pour la liste des commandes intégrées</string>
+<string name="sheets_shell_placeholder">Tapez une commande, puis Entrée</string>
+    <string name="sheets_no_results">Aucune commande correspondante.</string>
+    <string name="sheets_filter_all">Toutes</string>
+
+    <!-- ============ Onglet 4 : Payloads ============ -->
+    <string name="payload_connection_label">Connexion</string>
+    <string name="payload_host_label">HÔTE DISTANT</string>
+    <string name="payload_port_label">PORT</string>
+    <string name="payload_environment_label">Environnement</string>
+    <string name="payload_generated_label">Payload généré</string>
+    <string name="payload_ready">PRÊT</string>
+    <string name="payload_disclaimer">Réservé aux tests de sécurité autorisés et aux environnements de laboratoire.</string>
+    <string name="payload_no_exec_note">Texte à copier uniquement : l\'application n\'exécute aucune commande et n\'ouvre aucune session réseau.</string>
+    <string name="payload_host_error_empty">Renseignez une adresse IP ou un nom d\'hôte.</string>
+    <string name="payload_host_error_invalid">Adresse invalide (IPv4 ou nom d\'hôte attendu).</string>
+    <string name="payload_port_error_empty">Renseignez un port.</string>
+    <string name="payload_port_error_range">Le port doit être compris entre 1 et 65535.</string>
+    <string name="payload_template_hint">Modèle : renseignez l\'hôte et le port pour obtenir la commande finale.</string>
+
+    <!-- ============ Onglet 5 : Paramètres ============ -->
+    <string name="settings_title">PARAMÈTRES SYSTÈME</string>
+    <string name="settings_subtitle">Configuration SecOps &amp; Sécurité du Verrou</string>
+
+    <string name="settings_section_lock">Sécurité du Verrou</string>
+    <string name="settings_current_code_label">Combinaison secrète active</string>
+    <string name="settings_code_masked">Code actif : • • • • •</string>
+    <string name="settings_code_stored">Aucun code enregistré. Définissez une combinaison pour déverrouiller la console.</string>
+    <string name="settings_modify_button">MODIFIER LA COMBINAISON SECRÈTE</string>
+    <string name="settings_close_editing">FERMER LA MODIFICATION</string>
+
+    <string name="settings_change_code_title">CHANGER LE CODE SECRET</string>
+    <string name="settings_change_code_badge">5 CHIFFRES</string>
+    <string name="settings_change_code_help">Saisissez le code actuel, puis le nouveau code à 5 chiffres.</string>
+    <string name="settings_step_current">1. Code actuel (5 chiffres) :</string>
+    <string name="settings_step_new">2. Nouveau code secret (5 chiffres) :</string>
+    <string name="settings_step_placeholder_current">Ex : 24680</string>
+    <string name="settings_step_placeholder_new">Nouveaux chiffres (ex : 73514)</string>
+    <string name="settings_show_digits">Afficher les chiffres en clair</string>
+    <string name="settings_hide_digits">Masquer les chiffres</string>
+    <string name="settings_digits_counter">%1$d/5</string>
+
+    <string name="settings_err_current_length">Le code actuel doit comporter exactement 5 chiffres.</string>
+    <string name="settings_err_current_wrong">Code actuel incorrect ! Vérifiez la combinaison active.</string>
+    <string name="settings_err_new_length">Le nouveau code doit comporter exactement 5 chiffres.</string>
+    <string name="settings_err_new_same">Le nouveau code est identique à l\'actuel.</string>
+    <string name="settings_err_weak">Code trop prévisible (répété, séquentiel ou en paire). Choisissez une combinaison moins triviale.</string>
+    <string name="settings_err_generic">Le code n\'a pas pu être enregistré sur cet appareil.</string>
+
+    <string name="settings_change_code_warning">La validation du nouveau code sauvegardera sa empreinte et verrouillera immédiatement la console. Vous devrez composer ce nouveau code sur le barillet pour déverrouiller l\'accès.</string>
+    <string name="settings_validate_and_lock">VALIDER &amp; VERROUILLER</string>
+
+    <string name="settings_factory_code_warning">Vous utilisez encore le code d\'usine. Changez-le : il est public et figure dans le code de l\'application.</string>
+
+    <string name="settings_bruteforce_title">RÈGLE ANTI-BRUTEFORCE : ACTIVE</string>
+    <plurals name="settings_bruteforce_body">
+        <item quantity="one">%1$d essai consécutif, puis blocage de %2$s. Les compteurs sont persistés et horodatés de façon monotone : tuer l\'application ou reculer l\'horloge ne réinitialise rien.</item>
+        <item quantity="other">%1$d essais consécutifs, puis blocage de %2$s. Les compteurs sont persistés et horodatés de façon monotone : tuer l\'application ou reculer l\'horloge ne réinitialise rien.</item>
+    </plurals>
+    <string name="settings_lock_now">VERROUILLER LA CONSOLE MAINTENANT</string>
+
+    <string name="settings_section_lab">Configuration Lab &amp; Payloads</string>
+    <string name="settings_lab_help">Valeurs par défaut du générateur de payloads (hôte distant et port).</string>
+
+    <string name="settings_section_ergo">Ergonomie &amp; Thème</string>
+    <string name="settings_theme_title">Ambiance visuelle tactique</string>
+    <string name="settings_theme_cyber_green">Cyber Green</string>
+    <string name="settings_theme_tactical_blue">Tactical Blue</string>
+    <string name="settings_theme_stealth">Stealth</string>
+    <string name="settings_haptics_title">Retours haptiques</string>
+    <string name="settings_haptics_body">Vibrations sur le barillet, les erreurs et les actions</string>
+    <string name="settings_autolock_title">Verrouillage automatique</string>
+    <string name="settings_autolock_body">Délai avant reverrouillage après sortie de l\'application</string>
+    <string name="settings_autolock_immediate">Immédiat</string>
+    <string name="settings_autolock_on_change">Verrouiller après changement de code</string>
+    <string name="settings_screencapture_title">Bloquer captures d\'écran</string>
+    <string name="settings_screencapture_body">Masque l\'aperçu dans le sélecteur de tâches (DRM système)</string>
+
+    <string name="settings_section_privacy">Données &amp; Confidentialité</string>
+    <string name="settings_offline_title">Mode hors-ligne complet</string>
+    <!-- "trafic" is correct French; the Typos check is English-only. -->
+    <string name="settings_offline_body" tools:ignore="Typos">Aucune permission réseau déclarée, trafic en clair refusé</string>
+    <string name="settings_offline_enforced">GARANTI</string>
+    <string name="settings_wipe_body">Efface les entrées de l\'encodeur, du module crypto, l\'historique de session et les copies encore présentes dans le presse-papiers. Le code de verrouillage est conservé.</string>
+    <string name="settings_wipe_action">RÉINITIALISER LES DONNÉES DE SESSION</string>
+    <string name="settings_wipe_done">Données de session effacées</string>
+
+    <string name="settings_about_title">CYBERTOOLKIT SECOPS v2.4.0</string>
+    <string name="settings_about_body">Boîte à outils de sécurité et d\'entraînement tactique entièrement hors-ligne. Cadenas à 5 chiffres avec blocage progressif, hachage PBKDF2 et chiffrement AES-256-GCM.</string>
+
+    <string name="dialog_code_changed_title">CODE SECRET MODIFIÉ !</string>
+    <string name="dialog_code_changed_body">Votre nouvelle combinaison secrète a été enregistrée.</string>
+    <string name="dialog_code_changed_hint">La console va maintenant être verrouillée. Composez ce nouveau code sur le barillet pour déverrouiller l\'accès.</string>
+    <string name="dialog_code_changed_hint_no_lock">La console reste ouverte. Notez ce nouveau code : il vous sera demandé après le prochain verrouillage automatique.</string>
+    <string name="dialog_no_auto_lock">Verrouillage automatique désactivé</string>
+    <string name="dialog_lock_countdown">Verrouillage automatique dans %1$ds…</string>
+
+    <string name="dialog_wipe_title">Effacer les données de session ?</string>
+    <string name="dialog_wipe_body">Les entrées de l\'encodeur, du module crypto et le presse-papiers seront vidés. Le code de verrouillage et vos réglages sont conservés.</string>
+    <string name="dialog_wipe_confirm">EFFACER</string>
+
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_seconds">%1$d s</string>
+    <string name="payload_purpose_title">À QUOI ÇA SERT, CONCRÈTEMENT</string>
+    <string name="payload_purpose_body">Un payload est une simple ligne de texte pré-remplie. L\'app ne l\'exécute pas : elle l\'écrit pour vous. Vous la copiez dans Ncat ou un terminal, sur VOTRE machine de labo, après y avoir accédé par une faille que vous avez trouvée.</string>
+    <string name="payload_current_label">CELUI QUE VOUS VENEZ DE GÉNÉRER</string>
+    <string name="payload_explain_bash">Redirection bash : Bash ouvre une connexion TCP sortante vers votre hôte et votre port. À essayer en premier, mais la cible doit avoir Bash (rare sur Windows).</string>
+    <string name="payload_explain_powershell">Équivalent Windows. Utile si la cible est un serveur Windows, où Bash n\'existe pas.</string>
+    <string name="payload_explain_python">Version la plus fiable : lance un pseudo-terminal interactif. Fonctionne partout où Python 2 est installé. Plus longue parce qu\'elle installe elle-même le terminal.</string>
+    <string name="payload_explain_netcat">Le classique. Partout où netcat existe, MAIS l\'option -e a été retirée des versions récentes : cette variante échoue souvent.</string>
+    <string name="payload_explain_ping">Pas une session : vérifie seulement que la machine répond. Utile comme première étape, pour savoir si l\'IP est vivante.</string>
+    <string name="payload_order_hint">Ordre à essayer : Bash, puis Python, puis Netcat. Le premier qui fonctionne dépend de ce qui est installé sur la cible.</string>
+    <string name="settings_ssh_title">Client SSH (réseau)</string>
+    <string name="settings_ssh_body_off">DÉSACTIVÉ. Aucune connexion sortante. Activez pour exécuter une commande sur une machine de labo dont vous avez les identifiants.</string>
+    <string name="settings_ssh_body_on">ACTIVÉ. L\'app peut se connecter à votre machine de labo. Les identifiants ne sont jamais écrits sur le disque.</string>
+    <string name="settings_ssh_on_badge">RÉSEAU ACTIVÉ</string>
+    <string name="settings_offline_body_ssh_on">Modules hors-ligne : aucune connexion. Seule la commande SSH ci-dessous utilise le réseau.</string>
+    <string name="ssh_optin_blocked">Activez le client SSH dans Paramètres &gt; Données et vie privée.</string>
+    <string name="ssh_connect">EXÉCUTER</string>
+    <string name="ssh_title">Exécution à distance (SSH)</string>
+    <string name="ssh_host_label">HÔTE</string>
+    <string name="ssh_port_label">PORT</string>
+    <string name="ssh_user_label">UTILISATEUR</string>
+    <string name="ssh_key_label">CLÉ PRIVÉE (PEM)</string>
+    <string name="ssh_passphrase_label">PASSPHRASE (optionnel)</string>
+    <string name="ssh_command_label">COMMANDE</string>
+    <string name="ssh_command_hint">Une seule commande, sans PTY ni shell interactif.</string>
+    <string name="ssh_output">SORTIE</string>
+    <string name="ssh_idle">Aucune commande exécutée.</string>
+    <string name="ssh_running">Connexion…</string>
+    <string name="ssh_legal_note">Connexion uniquement vers une machine que vous possédez ou autorisation. Aucune donnée n\'est envoyée à un tiers : la commande va à votre hôte, rien d\'autre.</string>
+    <string name="sheets_shell_open_subtitle">Terminal simulé : commandes locales et réseau inventé. Aucune connexion réelle.</string>
+    <string name="ssh_open_subtitle_on">ACTIVÉ — exécuter une commande sur votre machine de labo</string>
+    <string name="ssh_open_subtitle_off">DÉSACTIVÉ — activer dans Paramètres &gt; Données et vie privée</string>
+    <string name="lab_what_title">CE QUE C\'EST</string>
+    <string name="lab_what_body">Un mini-terminal qui fonctionne entièrement dans l\'app. Tapez une commande en bas, appuyez sur Entrée, le résultat s\'affiche au-dessus.</string>
+    <string name="lab_safety_title">CE QUE CE N\'EST PAS</string>
+    <string name="lab_safety_body">Ce n\'est pas un terminal Linux. Aucun programme n\'est lancé, aucun fichier du téléphone n\'est lu, aucun réseau n\'est utilisé. Les commandes réseau (nmap, ping, tcpdump) inventent leurs réponses : elles servent à apprendre la forme d\'un résultat, pas à scanner une vraie machine. Pour une vraie machine, utilisez le client SSH plus bas.</string>
+    <string name="lab_try_title">ESSAYEZ</string>
+    <string name="lab_try_body">Tapez « help » puis Entrée pour la liste complète. Les boutons ci-dessous font la même chose qu\'écrire à la main.</string>
+</resources>

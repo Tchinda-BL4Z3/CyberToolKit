@@ -1,130 +1,111 @@
-# ProjectSecurityScanner
+# CyberToolkit SECOPS
 
-Analyseur local de documents texte qui repère les données sensibles — mots de passe,
-clés et jetons, données personnelles, coordonnées bancaires, fuites d'infrastructure —
-**sans rien envoyer sur le réseau**.
+Offline Android toolbox for security and tactical training. French-first UI with a
+full English translation, built with Jetpack Compose and Material 3.
 
-- **Moteur** : Rust (`crates/sensitive-core`), analyse linéaire sans regex catastrophique,
-  15 règles YAML déclaratives réparties dans `crates/sensitive-core/src/rules/`.
-- **Interface** : TypeScript + Vite en DOM natif (`apps/web`, aucun framework),
-  le moteur tourne dans un Web Worker via WebAssembly.
-- **Ligne de commande** : binaire `scanner` (`crates/sensitive-cli`).
-- **Même moteur partout** : le CLI, l'application web et le WASM compilent le même code Rust,
-  avec les mêmes règles et les mêmes validateurs (`luhn`, `iban_mod97`, `ean13`, `private_key_pem`,
-  `aws_access_key`, `jwt`, `email`, `iban_fr_rib`).
-- **Licence** : AGPL-3.0-or-later.
-- **Aucun réseau** : pas de crate réseau dans le workspace, pas de requête sortante depuis
-  l'application (voir `crates/sensitive-core/tests/no_network.rs`).
-- **Aucune fuite** : un `Finding` ne porte jamais l'échantillon brut, seulement des offsets
-  et un aperçu masqué (`••••••••••••0000`, quatre derniers caractères conservés).
+The app makes **no network requests**. There is no `INTERNET` permission in the
+manifest, no networking dependency, and no analytics. Everything runs on device.
 
-Le cahier des charges complet est dans [`ProjectSecurityScanner.md`](ProjectSecurityScanner.md).
+## The five tabs
 
-## Prérequis
-
-- Rust stable via rustup, avec la cible WebAssembly :
-
-  ```sh
-  rustup target add wasm32-unknown-unknown
-  ```
-
-- Node.js 20 ou supérieur (npm).
-
-Aucune clé d'API, aucun compte, aucune variable d'environnement ne sont nécessaires.
-
-## Architecture
-
-```
-Cargo.toml                    workspace Rust
-crates/sensitive-core/        moteur : règles YAML, évaluation, confiance, masquage, JSON
-crates/sensitive-cli/         binaire `scanner` (clap), décodage des encodages
-crates/sensitive-wasm/        exports WASM `pss_alloc` / `pss_dealloc` / `pss_scan`
-apps/web/                     application Vite (DOM natif), Worker, page de smoke test
-```
-
-## Commandes
-
-Depuis la racine :
-
-```sh
-cargo test --workspace        # tests Rust (règles, validateurs, moteur, WASM, no-network)
-cargo clippy --all-targets    # analyse statique, sans warning
-cargo fmt --all --check       # formatage
-```
-
-Depuis `apps/web/` :
-
-```sh
-npm install
-npm run lint                  # TypeScript, --noEmit
-npm run wasm                  # compile le moteur et copie le .wasm dans src/wasm/
-npm run dev                   # serveur de développement sur http://localhost:3000
-npm run build                 # vérifie le TypeScript puis produit dist/
-npm test                      # cargo test --workspace
-npm run test:smoke            # test de bout en bout dans Chrome headless (voir plus bas)
-```
-
-Ligne de commande :
-
-```sh
-cargo run -p sensitive-cli -- rules list                 # 15 règles
-cargo run -p sensitive-cli -- rules explain fin.iban      # détail d'une règle
-cargo run -p sensitive-cli -- scan --format text --redact fichier.txt
-echo 'IBAN FR7600000000000000000000000' | cargo run -p sensitive-cli -- scan --stdin --exit-code
-```
-
-Codes de sortie du CLI : `0` rien trouvé, `1` erreur d'usage, `2` détection trouvée
-(avec `--exit-code`).
-
-## Vérifications
-
-Dernier passage complet :
-
-| Vérification | Résultat |
+| Tab | What it does |
 | --- | --- |
-| `cargo test --workspace` | 63 tests, 0 échec (dont corpus 200 docs + budget FP) |
-| `cargo clippy --all-targets` | 0 warning |
-| `cargo fmt --all --check` | propre |
-| `npm run lint` (`tsc --noEmit`) | 0 erreur |
-| `npm run build` | OK (WASM 1 768 ko) |
-| `npm run test:smoke` | SMOKE_OK — 3 scénarios (texte, parcours app, .docx) |
-| smoke test Chrome (`npm run test:smoke`) | OK, 4 détections, 0 valeur en clair |
-| parcours réel (saisie → rapport) | OK, 2 détections masquées |
+| **Encodeur** | Base64 / Hex / URL encode and decode, with typed errors instead of a sentinel error string |
+| **Crypto** | MD5, SHA-1/256/384/512, HMAC-SHA-256, PBKDF2 strength meter, AES-256-GCM encrypt/decrypt |
+| **Cheat Sheets** | Offline catalogue of common commands, searchable and filterable |
+| **Payloads** | Reverse-shell one-liners for Bash, Python, PowerShell, Netcat and ICMP, with host/port validation |
+| **Paramètres** | Theme, lock code, auto-lock, screen capture, data wipe |
 
-## Smoke test de bout en bout
+## Security model
 
-`apps/web/scripts/smoke.mjs` pilote Chrome en mode sans-tête via le protocole DevTools
-(sans dépendance npm) :
+Read `docu/THREAT_MODEL.md` for the full write-up. The short version:
 
-```sh
-npm run dev          # terminal 1
-npm run test:smoke   # terminal 2
+- **Lock code** — 5 digits, stored as PBKDF2-HMAC-SHA256 (210 000 iterations,
+  random 128-bit salt) rather than clear text. Legacy `secret_combination` values
+  are migrated in place on first read and then erased.
+- **Brute-force** — 3 attempts, then a 10-minute lockout that doubles on each
+  subsequent lockout, capped at 24 h. The ledger lives in `SharedPreferences`,
+  not `rememberSaveable`, so force-stopping the app grants no extra guesses.
+  Both a monotonic clock and a tamper-resistant wall-clock high-water mark are
+  checked, so rewinding the clock or rebooting does not clear a lockout.
+- **Encryption** — AES-256-GCM with a random IV per operation and a versioned
+  `CYB1$…` envelope, so ciphertext is authenticated and self-describing.
+- **Screen capture** — `FLAG_SECURE`, applied on start and re-applied whenever
+  the setting changes.
+- **Backups** — `android:allowBackup="false"`, `fullBackupContent` rules that
+  exclude the security preferences, and cleartext traffic refused.
+- **No silent reset** — there is no "unlock now" escape hatch and no way to
+  clear the lockout from the UI. `LockoutGuard.resetForTests()` exists for tests
+  only and is not referenced by any screen.
+
+## A note on intent
+
+This is a training and reference tool. The payloads tab emits the same
+one-liners you will find in any public pentest reference, because those are the
+thing being studied. It contains no scanner, no exploit, and no automation —
+it produces text for a human to read and understand. Only run anything against
+systems you own or are authorised to test.
+
+## Build
+
+Requires JDK 17+ and the Android SDK. No API key, no `.env` file, no login.
+
+```bash
+./gradlew :app:assembleDebug          # debug APK
+./gradlew :app:testDebugUnitTest      # unit tests (Robolectric + JVM)
+./gradlew :app:lintDebug              # Android Lint
 ```
 
-Trois scénarios sont couverts :
+The debug APK lands in `app/build/outputs/apk/debug/`.
 
-1. `smoke.html` charge le WASM dans le Worker, analyse un document contenant IBAN,
-   carte, e-mail et JWT, et publie le résultat dans le DOM : 4 détections
-   (3 certaines, 1 probable), aucune valeur en clair, aperçus masqués.
-2. La page d'accueil réelle reçoit une saisie, lance le scan, affiche le rapport,
-   et le test vérifie que ni l'IBAN ni le numéro de carte n'apparaissent en clair.
-3. Un vrai `.docx` (archive générée en mémoire) est déposé dans la page : le texte
-   est extrait par le WASM, 3 détections, encodage `docx` affiché, aucune valeur en clair.
+### Release builds
 
-## Limites assumées
+Signing material is read from the environment and is never committed:
 
-- Textes et fichiers bureautiques analysés : `.docx`, `.xlsx` et `.pptx` (extension du texte des XML de l'archive) et fichiers texte. Les PDF, images et archives non bureautiques sont refusés explicitement : l'application explique pourquoi plutôt que de faire semblant de les lire (c'est le pire mode de défaillance du cahier des charges).
-- Encodage deviné (BOM, `chardetng`), 50 Mio par document au maximum.
-- L'interface sépare honnêtement ce qui a été couvert de ce qui ne l'a pas été.
+```bash
+export KEYSTORE_PATH=/path/to/upload.jks
+export STORE_PASSWORD=...
+export KEY_PASSWORD=...
+export KEY_ALIAS=upload
 
-## Documentation
+./gradlew :app:assembleRelease
+```
 
-- [`docs/build.md`](docs/build.md) — prérequis et compilations (Rust, WASM, web, fuzz)
-- [`docs/threat-model.md`](docs/threat-model.md) — modèle de menace, ce qui est détecté et ce qui ne l'est pas
-- [`docs/false-positives.md`](docs/false-positives.md) — budget de faux positifs, corpus, mesure
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — ajouter une règle (avec modèle)
-- [`SECURITY.md`](SECURITY.md) — politique de remontée de faille
+A missing value fails the build with an actionable message via the
+`verifyReleaseSigningMaterial` task rather than silently producing an unsigned
+or debug-signed release APK.
 
-## Licence
+## Project layout
 
-AGPL-3.0-or-later. Voir [`LICENSE`](LICENSE).
+```
+app/src/main/java/com/example/
+├── MainActivity.kt          single-activity host, lifecycle, FLAG_SECURE
+├── crypto/                  CryptoCore (primitives), Codecs (text transforms)
+├── data/                    CyberSettingsStore (persisted preferences)
+├── payloads/                PayloadGenerator + target validation
+├── security/                CyberSecurityManager, LockoutGuard
+└── ui/
+    ├── CyberToolkitViewModel.kt
+    ├── components/          CyberTextField, CyberTerminalBox, SecureClipboard, …
+    ├── crypto/ encoder/ payloads/ sheets/ settings/
+    ├── lock/                HomeScreenLock
+    └── theme/               CyberToolkitTheme, palettes
+```
+
+`MyApplicationTheme` is kept as an alias of `CyberToolkitTheme` for the
+`GreetingScreenshotTest` contract.
+
+## Tests
+
+73 unit tests covering the security-critical behaviour, not just the happy path:
+
+- `CryptoCoreTest` — published digests, RFC 4231 HMAC vectors, AES-GCM
+  round-trip, wrong-passphrase rejection, tamper detection, random IV.
+- `CodecsTest` — round-trips, and that every failure is a typed error that never
+  leaks into the copyable output box.
+- `CyberSecurityManagerTest` — asserts on the *raw* preferences file that the
+  code is never written in clear text, plus legacy migration.
+- `LockoutGuardTest` — budget, persistence across process death, clock rollback,
+  reboot, escalation and the 24 h cap, all driven by injected timestamps.
+- `PayloadGeneratorTest` — host/port validation and the `LHOST`/`LPORT`
+  template fallback.
